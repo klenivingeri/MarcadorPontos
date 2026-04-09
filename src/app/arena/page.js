@@ -15,7 +15,7 @@ export default function Arena() {
   const [setsRight, setSetsRight] = useState(0);
   const [showMaoDeFerro, setShowMaoDeFerro] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const initGame = 10;
+  const initGame = 7;
   const [showConfig, setShowConfig] = useState(false);
   const [startGame, setStartGame] = useState(true);
   const [configGame, setConfigGame] = useState({
@@ -34,7 +34,7 @@ export default function Arena() {
 
   const [settings, setSettings] = useState({
     groupName: "TruScore",
-    vibrate: true,
+    vibrate: false,
     bgUrl: "",
   });
 
@@ -70,6 +70,11 @@ export default function Arena() {
   }, [finishModal]);
 
   const handleAddPoints = (side, value) => {
+    // Retorno tátil opcional ao atribuir pontos
+    if (settings.vibrate && typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(25);
+    }
+
     // Se estiver no tempo de espera, ignora o clique
     if (isProcessing) return;
 
@@ -198,29 +203,37 @@ export default function Arena() {
           />
         )}
         {finishModal.visible && (
-          <div className="absolute inset-0 z-[120] bg-black/60 backdrop-blur-xl flex items-center justify-center p-6 text-center">
-            <div className="max-w-sm w-full bg-zinc-900/80 border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl">
-              <h2 className="text-zinc-500 font-black text-xl uppercase mb-1">
+          <div className="absolute inset-0 z-[120] bg-black/70 backdrop-blur-xl flex items-center justify-center p-2 text-center">
+            <div className="max-w-sm w-full bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem] shadow-2xl overflow-y-auto max-h-[98vh] scrollbar-hide">
+              {/* Título menor e com menos margem */}
+              <h2 className="text-zinc-600 font-black text-xs uppercase mb-1 tracking-widest">
                 Fim da Rodada
               </h2>
-              <div className="text-5xl font-black text-green-500 mb-4 uppercase italic">
-                Vitória <br />{" "}
+
+              {/* Texto de vitória em linha única e fonte menor */}
+              <div className="text-3xl font-black text-green-500 mb-4 uppercase italic leading-tight break-words">
+                Vitória{" "}
                 {finishModal.winner === "left"
                   ? configGame?.teamLeft
                   : configGame?.teamRight}
                 !
               </div>
-              <div className="relative h-20 w-20 mx-auto mb-6 flex items-center justify-center">
-                <span className="text-4xl font-black">
+
+              {/* Contador circular reduzido (h-20 -> h-16) */}
+              <div className="relative h-16 w-16 mx-auto mb-5 flex items-center justify-center">
+                <span className="text-2xl font-black text-white">
                   {finishModal.countdown}
                 </span>
-                <svg className="absolute inset-0 w-full h-full -rotate-90">
+                <svg
+                  className="absolute inset-0 w-full h-full -rotate-90"
+                  viewBox="0 0 80 80"
+                >
                   <circle
                     cx="40"
                     cy="40"
                     r="36"
                     stroke="currentColor"
-                    strokeWidth="4"
+                    strokeWidth="6"
                     fill="transparent"
                     className="text-zinc-800"
                   />
@@ -229,26 +242,38 @@ export default function Arena() {
                     cy="40"
                     r="36"
                     stroke="currentColor"
-                    strokeWidth="4"
+                    strokeWidth="6"
                     fill="transparent"
                     className="text-green-500"
                     strokeDasharray="226"
                     strokeDashoffset={
                       226 - (226 * finishModal.countdown) / initGame
                     }
+                    strokeLinecap="round"
                     style={{ transition: "stroke-dashoffset 1s linear" }}
                   />
                 </svg>
               </div>
-              <Confetti mode="boom" shapeSize={20} colors={colors_from_image} />
-              <p className="text-zinc-400 text-sm mb-6">
-                Iniciando novo jogo automaticamente...
-              </p>
+
+              <Confetti mode="boom" shapeSize={15} colors={colors_from_image} />
+
+              {/* --- NOVA ALTERNATIVA 1: Estilo Tecnológico --- */}
+              <div className="bg-zinc-950 border border-zinc-800 py-2.5 px-4 rounded-xl mb-2.5 shadow-inner">
+                <p className="text-zinc-400 text-[11px] font-mono uppercase tracking-tight flex items-center justify-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  </span>
+                  Iniciando novo jogo automaticamente...
+                </p>
+              </div>
+
+              {/* Botão de cancelar com menos padding vertical */}
               <button
                 onClick={cancelFinish}
-                className="w-full bg-white text-black py-4 rounded-2xl font-black uppercase active:scale-95 transition-transform"
+                className="text-zinc-600 hover:text-zinc-400 text-[11px] font-bold uppercase tracking-widest py-1 transition-colors"
               >
-                Corrigir Pontos (Cancelar)
+                Cancelar (Corrigir Pontos)
               </button>
             </div>
           </div>
@@ -449,7 +474,7 @@ export default function Arena() {
               "
             ></div>
             <div
-              className="text-center z-10 py-4 sm:py-0 pr-4"
+              className="text-center z-10 py-4 mt-1 sm:py-0 pr-4 w-full"
               onClick={() => handleAddPoints("left", 1)}
             >
               <span className="block text-[8rem] sm:text-[15rem] font-black leading-none tracking-tighter">
@@ -461,7 +486,7 @@ export default function Arena() {
             </div>
 
             <div
-              className="text-center z-10 py-4 sm:py-0 pr-4"
+              className="text-center z-10 py-4 sm:py-0 pr-4 mt-1 w-full"
               onClick={() => handleAddPoints("right", 1)}
             >
               <span className="block text-[8rem] sm:text-[15rem] font-black leading-none tracking-tighter text-zinc-400">

@@ -164,20 +164,63 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="p-8 bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem]">
-            <div className="text-green-500 text-3xl font-black mb-4">04</div>
-            <h3 className="text-xl font-bold mb-2 uppercase">Full Screen</h3>
-            <p className="text-zinc-500 leading-relaxed">
-              Para uma experiência completa, clique no{" "}
-              <strong className="text-zinc-300">ícone de expansão</strong> no
-              topo direito. O app forçará o{" "}
-              <strong className="text-green-500">modo paisagem</strong>{" "}
-              automaticamente. Para facilitar o acesso, utilize a opção{" "}
-              <strong className="text-zinc-300">"Instalar Aplicativo"</strong>{" "}
-              nas configurações do seu navegador e tenha a app na sua tela
-              inicial.
-            </p>
-          </div>
+<div className="p-5 bg-zinc-900/40 border border-zinc-800 rounded-[2rem] max-w-2xl mx-auto">
+  <div className="flex items-center gap-4 mb-3">
+    <div className="text-green-500 text-2xl font-black">04</div>
+    <h3 className="text-lg font-bold uppercase tracking-tight text-zinc-200">
+      Instalação & Full Screen
+    </h3>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm leading-snug">
+    {/* Coluna Android */}
+    <div className="bg-zinc-950/50 p-3 rounded-xl border border-zinc-800/50">
+      <span className="text-green-500 font-bold block mb-1 uppercase text-[10px]">Android (Chrome)</span>
+      <p className="text-zinc-400">
+        Toque nos <strong className="text-zinc-200">três pontos (⋮)</strong> e selecione <strong className="text-green-500">"Instalar aplicativo"</strong> ou "Adicionar à tela inicial".
+      </p>
+    </div>
+
+    {/* Coluna iPhone */}
+    <div className="bg-zinc-950/50 p-3 rounded-xl border border-zinc-800/50">
+      <span className="text-blue-400 font-bold block mb-1 uppercase text-[10px]">iPhone (Safari)</span>
+      <p className="text-zinc-400">
+        Toque no ícone de <strong className="text-zinc-200">Compartilhar (↑)</strong> e escolha <strong className="text-green-500">"Adicionar à Tela de Início"</strong>.
+      </p>
+    </div>
+  </div>
+
+  <div className="mt-4 pt-3 border-t border-zinc-800">
+  <div className="text-center px-2">
+    <p className="text-zinc-500 text-[11px] leading-relaxed">
+      Para uma melhor experiência        <strong className="text-green-500 uppercase italic text-[11px]">
+        gire a aparelho
+      </strong>{" "} na tela de pontos. No navegador? Use o{" "}
+      <strong className="text-zinc-300 uppercase italic inline-flex items-center gap-1">
+        ícone
+        <span className="inline-flex items-center justify-center w-6 h-6 bg-zinc-800/50 rounded-md animate-pulse text-green-500 align-middle">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+            <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+            <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+            <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+          </svg>
+        </span>
+      </strong>{" "}
+    </p>
+  </div>
+</div>
+</div>
 
           <div className="p-8 bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem]">
             <div className="text-green-500 text-3xl font-black mb-4">05</div>
