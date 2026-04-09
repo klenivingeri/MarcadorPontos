@@ -14,13 +14,13 @@ const roboto = Roboto({
 });
 
 export const metadata = {
-  title: "Truco Arena",
-  description: "Marcados de pontos para truco",
+  title: "TruScore - Marcados de Pontos e historico de partidas para jogos",
+  description: "TruScore - Marcados de Pontos e historico de partidas para jogos",
   manifest: "/manifest.json",
   icons: {
     apple: [
       {
-        url: "logo.jpg", 
+        url: "logo.png", 
         sizes: "180x180",
         type: "image/png",
       },
