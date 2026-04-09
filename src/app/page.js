@@ -47,29 +47,40 @@ export default function Home({ onStart }) {
         </header>
 
         {/* CONTEÚDO CENTRAL */}
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-8">
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-8 px-8">
+          {/* Logo Section */}
           <div className="relative">
             <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter uppercase leading-none">
-              Truco <br />
-              <span className="text-green-500">Arena</span>
+              Tru
+              <span className="text-green-500 drop-shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+                Score
+              </span>
             </h1>
-            <div className="absolute -top-4 -right-4 bg-white text-black text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-widest rotate-12">
+            <div className="absolute -top-4 -right-4 bg-white text-black text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-widest rotate-12 border-2 border-black">
               Pro Edition
             </div>
           </div>
 
+          {/* A Breve Descrição */}
+          <p className="max-w-[280px] md:max-w-md text-zinc-400 text-sm md:text-base font-medium leading-relaxed uppercase tracking-tight">
+            O marcador definitivo para quem busca{" "}
+            <span className="text-zinc-200">performance</span> e{" "}
+            <span className="text-zinc-200">imersão</span> total em cada rodada.
+          </p>
+
+          {/* Action Section */}
           <Link
             href="/arena"
-            prefetch
-            className="group relative px-12 py-6 bg-white text-black rounded-[2rem] font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(34,197,94,0.3)]"
-          >
-            Iniciar Partida
+            className="group relative px-12 py-6 bg-white text-black rounded-[2rem] font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(34,197,94,0.2)]">
+            <span className="relative z-10">Iniciar Partida</span>
             <div className="absolute inset-0 bg-green-500 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
           </Link>
         </div>
 
         {/* INDICADOR DE SCROLL (TUTORIAL) */}
-        <div className="flex flex-col items-center gap-2 animate-bounce opacity-40">
+        <div className="animate-slide-down">
+        <div className="flex flex-col items-center gap-2 animate-bounce opacity-40 mb-12">
+          {/* Aumente ou diminua o mb-12 conforme precisar subir mais */}
           <span className="text-[10px] uppercase font-bold tracking-[0.3em]">
             Tutorial
           </span>
@@ -87,6 +98,7 @@ export default function Home({ onStart }) {
             <path d="m7 13 5 5 5-5" />
             <path d="m7 6 5 5 5-5" />
           </svg>
+        </div>
         </div>
 
         {/* FUNDO DECORATIVO */}
@@ -166,19 +178,29 @@ export default function Home({ onStart }) {
             <div className="text-green-500 text-3xl font-black mb-4">05</div>
             <h3 className="text-xl font-bold mb-2 uppercase">Histórico</h3>
             <p className="text-zinc-500 leading-relaxed">
-    Acesse o registro completo de todas as rodadas para conferir <strong className="text-green-500">vitórias, derrotas</strong> e as <strong className="text-zinc-300">datas exatas</strong> de cada confronto. 
-    Utilize os <strong className="text-zinc-300">filtros inteligentes</strong> para localizar partidas específicas e auditar o desempenho dos times, garantindo que nenhum resultado caia no esquecimento.
-  </p>
+              Acesse o registro completo de todas as rodadas para conferir{" "}
+              <strong className="text-green-500">vitórias, derrotas</strong> e
+              as <strong className="text-zinc-300">datas exatas</strong> de cada
+              confronto. Utilize os{" "}
+              <strong className="text-zinc-300">filtros inteligentes</strong>{" "}
+              para localizar partidas específicas e auditar o desempenho dos
+              times, garantindo que nenhum resultado caia no esquecimento.
+            </p>
           </div>
 
           <div className="p-8 bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem]">
             <div className="text-green-500 text-3xl font-black mb-4">06</div>
             <h3 className="text-xl font-bold mb-2 uppercase">Identificador</h3>
-<p className="text-zinc-500 leading-relaxed">
-    Nas <strong className="text-zinc-300">Configurações</strong>, você pode definir o nome ou apelido que usará nas partidas. 
-    Ao fazer isso, partidas com seu nome ganham <strong className="text-green-500">destaque visual no histórico</strong>, 
-    transformando vitórias comuns em marcos da sua <strong className="text-zinc-300">carreira na jogo</strong>.
-  </p>
+            <p className="text-zinc-500 leading-relaxed">
+              Nas <strong className="text-zinc-300">Configurações</strong>, você
+              pode definir o nome ou apelido que usará nas partidas. Ao fazer
+              isso, partidas com seu nome ganham{" "}
+              <strong className="text-green-500">
+                destaque visual no histórico
+              </strong>
+              , transformando vitórias comuns em marcos da sua{" "}
+              <strong className="text-zinc-300">carreira na jogo</strong>.
+            </p>
           </div>
         </div>
 
