@@ -1,15 +1,19 @@
 "use client";
+import ConfigModal from "@/components/Menu/ConfigModal";
 import Link from "next/link";
-import React from "react"; // Importando a função que você já tem
+import React, { useState } from "react"; // Importando a função que você já tem
 
-export default function Home({ onStart }) {
+export default function Home() {
+  const [showConfig, setShowConfig] = useState(false);
+    // 4. Função que você passa para o onClose do Modal
+
   return (
     <div className="min-h-screen bg-black text-white font-sans selection:bg-green-500/30">
       {/* SEÇÃO PRINCIPAL (FULL SCREEN) */}
       <section className="h-screen w-full flex flex-col items-center justify-between p-6 relative overflow-hidden">
         {/* HEADER SUPERIOR */}
         <header className="w-full max-w-5xl flex justify-between items-center z-10">
-          <button className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90">
+          <Link href="/history" className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -26,9 +30,9 @@ export default function Home({ onStart }) {
               <path d="M13 17V5" />
               <path d="M8 17v-3" />
             </svg>
-          </button>
+          </Link>
 
-          <button className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90">
+          <button onClick={() => setShowConfig(true)} className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -71,7 +75,8 @@ export default function Home({ onStart }) {
           {/* Action Section */}
           <Link
             href="/arena"
-            className="group relative px-12 py-6 bg-white text-black rounded-[2rem] font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(34,197,94,0.2)]">
+            className="group relative px-12 py-6 bg-white text-black rounded-[2rem] font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(34,197,94,0.2)]"
+          >
             <span className="relative z-10">Iniciar Partida</span>
             <div className="absolute inset-0 bg-green-500 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
           </Link>
@@ -79,26 +84,26 @@ export default function Home({ onStart }) {
 
         {/* INDICADOR DE SCROLL (TUTORIAL) */}
         <div className="animate-slide-down">
-        <div className="flex flex-col items-center gap-2 animate-bounce opacity-40 mb-12">
-          {/* Aumente ou diminua o mb-12 conforme precisar subir mais */}
-          <span className="text-[10px] uppercase font-bold tracking-[0.3em]">
-            Tutorial
-          </span>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m7 13 5 5 5-5" />
-            <path d="m7 6 5 5 5-5" />
-          </svg>
-        </div>
+          <div className="flex flex-col items-center gap-2 animate-bounce opacity-40 mb-12">
+            {/* Aumente ou diminua o mb-12 conforme precisar subir mais */}
+            <span className="text-[10px] uppercase font-bold tracking-[0.3em]">
+              Tutorial
+            </span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m7 13 5 5 5-5" />
+              <path d="m7 6 5 5 5-5" />
+            </svg>
+          </div>
         </div>
 
         {/* FUNDO DECORATIVO */}
@@ -208,6 +213,13 @@ export default function Home({ onStart }) {
           Truco Arena © 2026 • Desenvolvido para campeões
         </footer>
       </section>
+
+      <ConfigModal
+        isOpen={showConfig}
+        onClose={() => {
+          setShowConfig(false);
+        }}
+      />
     </div>
   );
 }

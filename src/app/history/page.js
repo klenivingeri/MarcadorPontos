@@ -1,396 +1,232 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 
-// Função de utilidade para o Fullscreen
-export const toggleFullScreen = () => {
-  const el = document.documentElement;
-  if (!document.fullscreenElement) {
-    el.requestFullscreen?.().then(() => {
-      if (screen.orientation?.lock) {
-        screen.orientation.lock("landscape").catch((err) => console.error(err));
-      }
-    });
-  } else {
-    document.exitFullscreen?.().then(() => {
-      if (screen.orientation?.unlock) screen.orientation.unlock();
-    });
-  }
-};
-
-export default function Arena() {
-  const [pointsLeft, setPointsLeft] = useState(0);
-  const [pointsRight, setPointsRight] = useState(0);
-  const [setsLeft, setSetsLeft] = useState(0);
-  const [setsRight, setSetsRight] = useState(0);
-  const [showMaoDeFerro, setShowMaoDeFerro] = useState(false);
-  const initGame = 15;
-
-
-  // Estados para o novo Modal de Finalização
-  const [finishModal, setFinishModal] = useState({
-    visible: false,
-    winner: null,
-    countdown: 10,
-  });
-  const timerRef = useRef(null);
-
-  const [isStandalone, setIsStandalone] = useState(true);
+const HistoryPage = () => {
+  const [history, setHistory] = useState([]);
+  const [userSettings, setUserSettings] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    const checkPWA = () => {
-      const isPWA =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        window.navigator.standalone ||
-        document.referrer.includes("android-app://");
-      setIsStandalone(isPWA);
-    };
-    checkPWA();
+    const savedHistory = JSON.parse(localStorage.getItem("game_history") || "[]");
+    const savedSettings = JSON.parse(localStorage.getItem("truscore_settings") || "{}");
+    setHistory(savedHistory);
+    setUserSettings(savedSettings);
   }, []);
 
-  // Lógica do Cronômetro do Modal de Finalização
-  useEffect(() => {
-    if (finishModal.visible && finishModal.countdown > 0) {
-      timerRef.current = setTimeout(() => {
-        setFinishModal((prev) => ({ ...prev, countdown: prev.countdown - 1 }));
-      }, 1000);
-    } else if (finishModal.visible && finishModal.countdown === 0) {
-      executeFinishSet(finishModal.winner);
-    }
-    return () => clearTimeout(timerRef.current);
-  }, [finishModal]);
+  // Define o alvo da análise (Prioriza a busca, depois o ID salvo)
+  const activeTarget = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    const savedId = userSettings?.groupName?.toLowerCase();
+    if (term) return term;
+    if (savedId && savedId !== "não definido") return savedId;
+    return "";
+  }, [searchTerm, userSettings]);
 
-  const handleAddPoints = (side, value) => {
-    if (side === "left") {
-      const newTotal = pointsLeft + value;
-      if (newTotal >= 15) triggerFinishSequence("left");
-      else setPointsLeft(newTotal);
+  // 1. Filtro da Lista
+  const filteredHistory = useMemo(() => {
+    if (!searchTerm) return history;
+    const term = searchTerm.toLowerCase();
+    return history.filter((game) =>
+      game.teams.left.toLowerCase().includes(term) ||
+      game.teams.right.toLowerCase().includes(term) ||
+      game.winner.toLowerCase().includes(term)
+    );
+  }, [history, searchTerm]);
+
+  // 2. Estatísticas Dinâmicas (Win Streak e Losses)
+const stats = useMemo(() => {
+  const target = activeTarget.toLowerCase();
+  if (!target) return { streak: 0, wins: 0, losses: 0, winRate: 0 };
+
+  let streak = 0;
+  let wins = 0;
+  let losses = 0;
+  let isStreakActive = true;
+
+  // Iteramos do mais recente para o mais antigo
+  for (let i = history.length - 1; i >= 0; i--) {
+    const game = history[i];
+    const teamLeft = game.teams.left.toLowerCase();
+    const teamRight = game.teams.right.toLowerCase();
+    const winner = game.winner.toLowerCase();
+
+    const isInMatch = teamLeft.includes(target) || teamRight.includes(target);
+    if (!isInMatch) continue;
+
+    const isWinner = winner.includes(target);
+
+    if (isWinner) {
+      wins++;
+      if (isStreakActive) streak++;
     } else {
-      const newTotal = pointsRight + value;
-      if (newTotal >= 15) triggerFinishSequence("right");
-      else setPointsRight(newTotal);
+      losses++;
+      isStreakActive = false; // Acabou a sequência de vitórias atual
     }
-  };
+  }
 
-  const triggerFinishSequence = (winner) => {
-    setFinishModal({ visible: true, winner, countdown: initGame });
-  };
+  const totalGames = wins + losses;
+  const winRate = totalGames > 0 ? (wins / totalGames) * 100 : 0;
 
-  const cancelFinish = () => {
-    clearTimeout(timerRef.current);
-    setFinishModal({ visible: false, winner: null, countdown: initGame });
-  };
+  return { streak, wins, losses, winRate };
+}, [history, activeTarget]);
 
-  const executeFinishSet = (winner) => {
-    if (winner === "left") setSetsLeft((s) => s + 1);
-    else setSetsRight((s) => s + 1);
-    setPointsLeft(0);
-    setPointsRight(0);
-    setShowMaoDeFerro(false);
-    setFinishModal({ visible: false, winner: null, countdown: initGame });
-  };
 
-  const handlePerdeTudo = (culpable) => {
-    if (pointsLeft === 14 && pointsRight === 14) {
-      if (!culpable) {
-        setShowMaoDeFerro(true);
-        return;
-      }
-      triggerFinishSequence(culpable === "left" ? "right" : "left");
-    } else {
-      if (pointsLeft === 14) triggerFinishSequence("right");
-      else if (pointsRight === 14) triggerFinishSequence("left");
+  const deleteEntry = (id) => {
+    if (confirm("Excluir esta partida?")) {
+      const updated = history.filter((item) => item.id !== id);
+      localStorage.setItem("game_history", JSON.stringify(updated));
+      setHistory(updated);
     }
   };
 
   return (
-    <div className="fixed inset-0 flex items-stretch bg-black text-white font-sans overflow-hidden p-2 select-none">
-      {/* MODAL DE FINALIZAÇÃO (NOVO) */}
-      {finishModal.visible && (
-        <div className="absolute inset-0 z-[120] bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 text-center">
-          <div className="max-w-sm w-full bg-zinc-900 border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl">
-            <h2 className="text-zinc-500 font-black text-xl uppercase mb-1">
-              Fim da Rodada
-            </h2>
-            <div className="text-5xl font-black text-green-500 mb-4 uppercase italic">
-              Vitória da{" "}
-              {finishModal.winner === "left" ? "Esquerda" : "Direita"}!
-            </div>
-
-            <div className="relative h-20 w-20 mx-auto mb-6 flex items-center justify-center">
-              <span className="text-4xl font-black">
-                {finishModal.countdown}
-              </span>
-              <svg className="absolute inset-0 w-full h-full -rotate-90">
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="36"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="transparent"
-                  className="text-zinc-800"
-                />
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="36"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="transparent"
-                  className="text-green-500"
-                  strokeDasharray="226"
-                  strokeDashoffset={226 - (226 * finishModal.countdown) / initGame}
-                  style={{ transition: "stroke-dashoffset 1s linear" }}
-                />
-              </svg>
-            </div>
-
-            <p className="text-zinc-400 text-sm mb-6">
-              Iniciando novo jogo automaticamente...
-            </p>
-
-            <button
-              onClick={cancelFinish}
-              className="w-full bg-white text-black py-4 rounded-2xl font-black uppercase active:scale-95 transition-transform"
-            >
-              Corrigir Pontos (Cancelar)
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL MÃO DE FERRO */}
-      {showMaoDeFerro && (
-        <div className="absolute inset-0 z-[110] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 text-center">
-          <div className="w-full max-w-lg">
-            <h2 className="text-red-600 font-black text-3xl uppercase mb-2">
-              Mão de Ferro
-            </h2>
-            <p className="text-zinc-400 text-sm mb-8 font-bold">
-              Proibido trucar! Quem gritou perde a partida.
-            </p>
-
-            <div className="flex flex-col items-center gap-4">
-              {/* Container Flex para os botões principais */}
-              <div className="flex w-full gap-4 justify-center">
-                <button
-                  onClick={() => handlePerdeTudo("left")}
-                  className="flex-1 bg-zinc-900 border border-zinc-800 py-8 rounded-2xl active:bg-red-600 transition-colors font-black text-sm sm:text-base"
-                >
-                  ESQUERDA GRITOU
-                </button>
-                <button
-                  onClick={() => handlePerdeTudo("right")}
-                  className="flex-1 bg-zinc-900 border border-zinc-800 py-8 rounded-2xl active:bg-red-600 transition-colors font-black text-sm sm:text-base"
-                >
-                  DIREITA GRITOU
-                </button>
-              </div>
-
-              <button
-                onClick={() => setShowMaoDeFerro(false)}
-                className="mt-4 px-8 py-2 text-[10px] text-zinc-600 uppercase font-bold hover:text-zinc-400 transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* COLUNA ESQUERDA */}
-      <aside className="flex flex-col justify-between w-24 gap-2">
-        <button
-          onClick={() => handleAddPoints("left", 3)}
-          className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center gap-1"
-        >
-          <span className="text-xs text-zinc-400 uppercase font-bold">
-            Truco
-          </span>
-          <span className="text-2xl font-black">+3</span>
-        </button>
-        {[6, 9, 12].map((v) => (
-          <button
-            key={v}
-            onClick={() => handleAddPoints("left", v)}
-            className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all font-bold text-xl"
+    <div className="min-h-screen bg-[#0a0a0a] text-zinc-100 p-6 pb-24 font-sans">
+      <header className="max-w-4xl mx-auto mb-10">
+        <div className="flex items-center justify-between mb-12">
+          <h1 className="text-4xl font-black italic tracking-tighter text-green-500 uppercase">
+            Overview
+          </h1>
+          <button 
+            onClick={() => confirm("Limpar histórico?") && setHistory([])} 
+            className="text-[10px] font-bold text-zinc-700 hover:text-red-500 uppercase tracking-widest transition-all"
           >
-            {v === 12 ? "12" : `+${v}`}
+            Limpar Tudo
           </button>
-        ))}
-        <button
-          onClick={() => setPointsLeft(Math.max(0, pointsLeft - 1))}
-          className="h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 active:bg-red-600 active:text-white transition-all font-bold"
-        >
-          -1
-        </button>
-      </aside>
+        </div>
 
-      {/* CENTRO */}
-      <main className="flex-1 flex flex-col px-4">
-        <header className="flex justify-between items-start pt-2">
-          <div className="flex gap-1 w-24">
-            <button
-              onClick={() => {
-                setPointsLeft(0);
-                setPointsRight(0);
-                setSetsLeft(0);
-                setSetsRight(0);
-              }}
-              className="p-2 text-zinc-500 hover:text-white transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-                <path d="M3 3v5h5" />
-              </svg>
-            </button>
-          </div>
+        {/* Campo de Busca */}
+        <div className="mb-8">
+          <label className="text-[10px] font-black text-zinc-700 uppercase tracking-[0.3em] mb-3 block">
+            Pesquisar Jogador ou Time
+          </label>
+          <input
+            type="text"
+            placeholder="EX: ERICK..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-[#141414] border border-zinc-800 rounded-2xl px-5 py-5 text-xs font-bold uppercase tracking-widest focus:ring-1 focus:ring-green-500 outline-none text-green-400 placeholder:text-zinc-800 transition-all"
+          />
+        </div>
 
-          <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">
-              Rodadas
+        {/* Dashboard de Stats - Abaixo da Busca */}
+        <div className="grid grid-cols-2 gap-4 mb-12">
+          <div className="bg-[#141414] p-8 rounded-[2rem] border-l-4 border-green-500 shadow-2xl relative overflow-hidden">
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1">
+              Win Streak {activeTarget && `• ${activeTarget}`}
             </span>
-            <div className="flex items-center gap-6">
-              <div className="flex gap-1">
-                {[...Array(3)].map((_, i) => (
-                  <span
-                    key={i}
-                    className={`text-xl ${i < setsLeft ? "text-green-500" : "text-zinc-800"}`}
-                  >
-                    ●
-                  </span>
-                ))}
-              </div>
-              <div className="h-4 w-[1px] bg-zinc-800"></div>
-              <div className="flex gap-1">
-                {[...Array(3)].map((_, i) => (
-                  <span
-                    key={i}
-                    className={`text-xl ${i < setsRight ? "text-green-500" : "text-zinc-800"}`}
-                  >
-                    ●
-                  </span>
-                ))}
-              </div>
+            <div className="text-6xl font-black italic text-white tracking-tighter">
+              {console.log(stats.streak)}
+              {String(stats.wins).padStart(2, '0')}
             </div>
+            <div className="absolute -right-4 -bottom-4 text-green-500/5 text-8xl font-black italic uppercase">Win</div>
           </div>
+          
+          <div className="bg-[#141414] p-8 rounded-[2rem] border-l-4 border-red-600 shadow-2xl relative overflow-hidden">
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1">
+              Total Losses {activeTarget && `• ${activeTarget}`}
+            </span>
+            <div className="text-6xl font-black italic text-white tracking-tighter">
+              {String(stats.losses).padStart(2, '0')}
+            </div>
+            <div className="absolute -right-4 -bottom-4 text-red-600/5 text-8xl font-black italic uppercase">Loss</div>
+          </div>
+        </div>
 
-          <div className="flex gap-1 w-24">
-            {!isStandalone && (
-              <button
-                onClick={toggleFullScreen}
-                className="p-2 text-zinc-500 hover:text-white transition-colors active:scale-90"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="22"
-                  height="22"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+        <h2 className="text-zinc-500 font-black text-xs uppercase tracking-[0.4em] mb-6">
+          {searchTerm ? `Results for "${searchTerm}"` : "Recent Matches"}
+        </h2>
+      </header>
+
+      <main className="max-w-4xl mx-auto space-y-4">
+        {filteredHistory.length === 0 ? (
+          <div className="text-center py-20 border-2 border-dashed border-zinc-900 rounded-[3rem]">
+            <p className="text-zinc-800 font-bold uppercase tracking-widest text-xs">Nenhuma partida encontrada</p>
+          </div>
+        ) : (
+          filteredHistory.map((game) => {
+            const target = activeTarget.toLowerCase();
+            const teamLeft = game.teams.left.toLowerCase();
+            const teamRight = game.teams.right.toLowerCase();
+            const winnerName = game.winner.toLowerCase();
+
+            // Identificação para Borda e Label
+            const isTargetInMatch = target && (teamLeft.includes(target) || teamRight.includes(target));
+            const isTargetWinner = target && winnerName.includes(target);
+
+            let borderColor = "border-zinc-900";
+            let labelColor = "bg-zinc-800 text-zinc-500";
+            let statusLabel = "MATCH";
+
+            if (isTargetInMatch) {
+              if (isTargetWinner) {
+                borderColor = "border-green-500";
+                labelColor = "bg-green-500 text-black";
+                statusLabel = "WINNER";
+              } else {
+                borderColor = "border-red-600";
+                labelColor = "bg-red-600 text-white";
+                statusLabel = "DEFEAT";
+              }
+            }
+
+            return (
+              <div key={game.id} className={`relative bg-[#111111] border-l-[6px] ${borderColor} rounded-[2.5rem] p-8 transition-all hover:bg-[#141414] group`}>
+                <button 
+                  onClick={() => deleteEntry(game.id)} 
+                  className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 text-zinc-800 hover:text-red-500 font-bold text-2xl transition-all"
                 >
-                  <path d="M8 3H5a2 2 0 0 0-2 2v3" />
-                  <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
-                  <path d="M3 16v3a2 2 0 0 0 2 2h3" />
-                  <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
-                </svg>
-              </button>
-            )}
-            <button className="p-2 text-zinc-500 hover:text-white transition-colors">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-            </button>
-          </div>
-        </header>
+                  ×
+                </button>
 
-        <section className="flex-1 flex items-center justify-around relative">
-          <div className="absolute inset-y-10 left-1/2 w-[1px] bg-gradient-to-b from-transparent via-zinc-800 to-transparent"></div>
-          <div
-            className="text-center"
-            onClick={() => handleAddPoints("left", 1)}
-          >
-            <span className="block text-[12rem] sm:text-[15rem] font-black leading-none tracking-tighter pr-3">
-              {String(pointsLeft).padStart(2, "0")}
-            </span>
-            <span className="text-xs uppercase tracking-widest text-zinc-600 font-bold">
-              Esquerda
-            </span>
-          </div>
-          <div
-            className="text-center"
-            onClick={() => handleAddPoints("right", 1)}
-          >
-            <span className="block text-[12rem] sm:text-[15rem] font-black leading-none tracking-tighter text-zinc-400 pr-3">
-              {String(pointsRight).padStart(2, "0")}
-            </span>
-            <span className="text-xs uppercase tracking-widest text-zinc-600 font-bold">
-              Direita
-            </span>
-          </div>
-        </section>
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded ${labelColor}`}>{statusLabel}</span>
+                      <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">{game.date} • {game.time}</span>
+                    </div>
+                    
+                    <div className="text-5xl font-black italic uppercase tracking-tighter text-white leading-none">
+                      {game.winner}
+                    </div>
+                    
+                    <div className="text-xs font-bold uppercase tracking-widest text-zinc-700 mt-2">
+                      VS {winnerName.includes(teamLeft) ? game.teams.right : game.teams.left}
+                    </div>
+                  </div>
 
-        <footer className="flex flex-col items-center justify-center h-12">
-          {(pointsLeft === 14 || pointsRight === 14) && (
-            <button
-              onClick={() => handlePerdeTudo()}
-              className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-4rem)] md:w-auto md:px-6 py-2 mb-2 bg-red-900/20 border border-red-900/50 rounded-2xl md:rounded-full text-white text-sm font-black uppercase tracking-widest animate-pulse"
-            >
-              Perde Tudo
-            </button>
-          )}
-        </footer>
+                  <div className="text-right pr-4">
+                    <div className="flex items-baseline gap-3">
+                      {/* Placar Esquerdo */}
+                      <span className={`text-6xl font-black italic ${
+                        Number(game.score.left) > Number(game.score.right) ? "text-green-500" : "text-red-600"
+                      }`}>
+                        {game.score.left}
+                      </span>
+                      
+                      <span className="text-2xl font-black text-zinc-900">-</span>
+                      
+                      {/* Placar Direito */}
+                      <span className={`text-6xl font-black italic ${
+                        Number(game.score.right) > Number(game.score.left) ? "text-green-500" : "text-red-600"
+                      }`}>
+                        {game.score.right}
+                      </span>
+                    </div>
+                    <div className="text-[10px] font-bold text-zinc-800 uppercase tracking-[0.2em] mt-1">Sets Won</div>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+
+        <div className="py-12 flex flex-col items-center gap-4 opacity-10">
+          <div className="w-10 h-10 rounded-full border-2 border-zinc-500 flex items-center justify-center font-bold">!</div>
+          <p className="text-[9px] font-black uppercase tracking-[0.5em]">End of History</p>
+        </div>
       </main>
-
-      {/* COLUNA DIREITA */}
-      <aside className="flex flex-col justify-between w-24 gap-2 text-zinc-400">
-        <button
-          onClick={() => handleAddPoints("right", 3)}
-          className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center gap-1"
-        >
-          <span className="text-xs uppercase font-bold">Truco</span>
-          <span className="text-2xl font-black text-white">+3</span>
-        </button>
-        {[6, 9, 12].map((v) => (
-          <button
-            key={v}
-            onClick={() => handleAddPoints("right", v)}
-            className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all font-bold text-xl"
-          >
-            {v === 12 ? "12" : `+${v}`}
-          </button>
-        ))}
-        <button
-          onClick={() => setPointsRight(Math.max(0, pointsRight - 1))}
-          className="h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 active:bg-red-600 active:text-white transition-all font-bold"
-        >
-          -1
-        </button>
-      </aside>
     </div>
   );
-}
+};
+
+export default HistoryPage;

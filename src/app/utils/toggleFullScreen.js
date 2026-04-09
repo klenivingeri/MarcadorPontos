@@ -1,14 +1,15 @@
 export const toggleFullScreen = () => {
   const el = document.documentElement;
+
   if (!document.fullscreenElement) {
-    el.requestFullscreen?.().then(() => {
-      if (screen.orientation?.lock) {
-        screen.orientation.lock("landscape").catch((err) => console.error(err));
-      }
+    // Entra em Full Screen
+    el.requestFullscreen?.().catch((err) => {
+      console.error(`Erro ao tentar ativar Full Screen: ${err.message}`);
     });
   } else {
-    document.exitFullscreen?.().then(() => {
-      if (screen.orientation?.unlock) screen.orientation.unlock();
+    // Sai do Full Screen
+    document.exitFullscreen?.().catch((err) => {
+      console.error(`Erro ao tentar sair do Full Screen: ${err.message}`);
     });
   }
 };

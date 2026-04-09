@@ -3,6 +3,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { toggleFullScreen } from "../utils/toggleFullScreen";
 import ConfigModal from "@/components/Menu/ConfigModal";
 import MatchConfigModal from "@/components/InitGame/MatchConfigModal";
+import Confetti from "react-confetti-boom";
+import { colors_from_image } from "@/constants/colors";
+import ChampionModal from "@/components/Winner/ChampionModal";
 
 export default function Arena() {
   const [pointsLeft, setPointsLeft] = useState(0);
@@ -15,12 +18,11 @@ export default function Arena() {
   const [showConfig, setShowConfig] = useState(false);
   const [startGame, setStartGame] = useState(true);
   const [configGame, setConfigGame] = useState({
-    teamLeft: ["Time 1"],
-    teamRight: ["Time 2"],
+    teamLeft: "Time 1",
+    teamRight: "Time 2",
     maxRounds: 1,
   });
 
-  const [isStandalone, setIsStandalone] = useState(true);
   // Estados para o novo Modal de Finalização
   const [finishModal, setFinishModal] = useState({
     visible: false,
@@ -53,18 +55,6 @@ export default function Arena() {
     const saved = localStorage.getItem("truscore_settings");
     if (saved) setSettings(JSON.parse(saved));
   };
-
-  useEffect(() => {
-    const isFullScreen = () => {
-      return !!(
-        document.fullscreenElement || // Padrão atual
-        document.mozFullScreenElement || // Firefox antigo
-        document.webkitFullscreenElement || // Chrome/Safari antigo
-        document.msFullscreenElement // IE/Edge antigo
-      );
-    };
-    setIsStandalone(isFullScreen());
-  }, []);
 
   // Lógica do Cronômetro do Modal de Finalização
   useEffect(() => {
@@ -102,7 +92,31 @@ export default function Arena() {
   };
 
   const triggerFinishSequence = (winner) => {
-    setFinishModal({ visible: true, winner, countdown: initGame });
+    // 1. Calculamos o que aconteceria com os sets se esse vencedor ganhar a rodada agora
+    const nextSetsValue = winner === "left" ? setsLeft + 1 : setsRight + 1;
+    const isFinalVictory = nextSetsValue >= configGame.maxRounds;
+
+    if (isFinalVictory) {
+      // 2. Se for a vitória final, pulamos o timer e vamos direto para o Campeão
+      // Atualizamos o placar de sets para o modal ler o valor correto
+      if (winner === "left") setSetsLeft(nextSetsValue);
+      else setSetsRight(nextSetsValue);
+
+      setFinishModal({
+        visible: false,
+        winner: winner,
+        countdown: 0,
+        championVisible: true, // Abre direto o troféu
+      });
+    } else {
+      // 3. Se não for a final, mostramos o timer de "Fim da Rodada" normalmente
+      setFinishModal({
+        visible: true,
+        winner,
+        countdown: initGame,
+        championVisible: false,
+      });
+    }
   };
 
   const cancelFinish = () => {
@@ -132,6 +146,29 @@ export default function Arena() {
     }
   };
 
+  const handleInitGame = () => {
+    setPointsLeft(0);
+    setPointsRight(0);
+    setSetsLeft(0);
+    setSetsRight(0);
+  };
+
+  const handleResetFullGame = () => {
+    setPointsLeft(0);
+    setPointsRight(0);
+    setSetsLeft(0);
+    setSetsRight(0);
+    setShowMaoDeFerro(false);
+    setIsProcessing(false);
+    setFinishModal({
+      visible: false,
+      winner: null,
+      countdown: initGame,
+      championVisible: false,
+    });
+    setStartGame(true);
+  };
+
   return (
     <div
       className="fixed inset-0 flex flex-col sm:flex-row items-stretch bg-black text-white font-sans overflow-hidden p-2 select-none"
@@ -143,6 +180,22 @@ export default function Arena() {
     >
       <div className="fixed inset-0 flex flex-col sm:flex-row items-stretch bg-black/90 text-white font-sans overflow-hidden p-2 select-none">
         {/* MODAL DE FINALIZAÇÃO */}
+        {finishModal.championVisible && (
+          <ChampionModal
+            isOpen={finishModal.championVisible}
+            winnerName={
+              finishModal.winner === "left"
+                ? configGame.teamLeft
+                : configGame.teamRight
+            }
+            score={{ left: setsLeft, right: setsRight }}
+            configGame={configGame}
+            onRestart={handleResetFullGame} // <--- Este nome deve bater com a const acima
+            onClose={() =>
+              setFinishModal((p) => ({ ...p, championVisible: false }))
+            }
+          />
+        )}
         {finishModal.visible && (
           <div className="absolute inset-0 z-[120] bg-black/60 backdrop-blur-xl flex items-center justify-center p-6 text-center">
             <div className="max-w-sm w-full bg-zinc-900/80 border border-zinc-800 p-8 rounded-[2.5rem] shadow-2xl">
@@ -151,7 +204,10 @@ export default function Arena() {
               </h2>
               <div className="text-5xl font-black text-green-500 mb-4 uppercase italic">
                 Vitória <br />{" "}
-                {finishModal.winner === "left" ? configGame?.teamLeft : configGame?.teamRight}!
+                {finishModal.winner === "left"
+                  ? configGame?.teamLeft
+                  : configGame?.teamRight}
+                !
               </div>
               <div className="relative h-20 w-20 mx-auto mb-6 flex items-center justify-center">
                 <span className="text-4xl font-black">
@@ -183,6 +239,7 @@ export default function Arena() {
                   />
                 </svg>
               </div>
+              <Confetti mode="boom" shapeSize={20} colors={colors_from_image} />
               <p className="text-zinc-400 text-sm mb-6">
                 Iniciando novo jogo automaticamente...
               </p>
@@ -266,10 +323,6 @@ export default function Arena() {
             <div className="flex gap-1 w-12 sm:w-24">
               <button
                 onClick={() => {
-                  setPointsLeft(0);
-                  setPointsRight(0);
-                  setSetsLeft(0);
-                  setSetsRight(0);
                   setStartGame(true);
                 }}
                 className="p-2 text-zinc-500 hover:text-white"
@@ -321,29 +374,27 @@ export default function Arena() {
             </div>
 
             <div className="flex gap-1 w-12 sm:w-24 justify-end">
-              {!isStandalone && (
-                <button
-                  onClick={toggleFullScreen}
-                  className="p-2 text-zinc-500 hover:text-white transition-colors active:scale-90"
+              <button
+                onClick={toggleFullScreen}
+                className="p-2 text-zinc-500 hover:text-white transition-colors active:scale-90"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M8 3H5a2 2 0 0 0-2 2v3" />
-                    <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
-                    <path d="M3 16v3a2 2 0 0 0 2 2h3" />
-                    <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
-                  </svg>
-                </button>
-              )}
+                  <path d="M8 3H5a2 2 0 0 0-2 2v3" />
+                  <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
+                  <path d="M3 16v3a2 2 0 0 0 2 2h3" />
+                  <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
+                </svg>
+              </button>
               <button
                 onClick={() => setShowConfig(true)}
                 className="p-2 text-zinc-500 hover:text-white transition-colors"
@@ -367,10 +418,18 @@ export default function Arena() {
           </header>
 
           <section className="flex-1 flex flex-col sm:flex-row items-center justify-around relative">
-            <div className="absolute inset-x-10 sm:inset-x-auto sm:inset-y-10 left-1/2 sm:left-1/2 top-1/2 sm:top-auto w-full sm:w-[1px] h-[1px] sm:h-auto bg-gradient-to-r sm:bg-gradient-to-b from-transparent via-zinc-800 to-transparent -translate-y-1/2 sm:translate-y-0"></div>
-
             <div
-              className="text-center z-10 py-4 sm:py-0"
+              className="
+                absolute left-0 right-0 top-1/2 -translate-y-1/2 
+                h-[1px] w-full 
+                bg-gradient-to-r from-transparent via-zinc-800 to-transparent
+                sm:left-1/2 sm:right-auto sm:top-0 sm:bottom-0 sm:translate-y-0
+                sm:w-[1px] sm:h-full 
+                sm:bg-gradient-to-b
+              "
+            ></div>
+            <div
+              className="text-center z-10 py-4 sm:py-0 pr-4"
               onClick={() => handleAddPoints("left", 1)}
             >
               <span className="block text-[8rem] sm:text-[15rem] font-black leading-none tracking-tighter">
@@ -382,7 +441,7 @@ export default function Arena() {
             </div>
 
             <div
-              className="text-center z-10 py-4 sm:py-0"
+              className="text-center z-10 py-4 sm:py-0 pr-4"
               onClick={() => handleAddPoints("right", 1)}
             >
               <span className="block text-[8rem] sm:text-[15rem] font-black leading-none tracking-tighter text-zinc-400">
@@ -441,6 +500,7 @@ export default function Arena() {
         <MatchConfigModal
           isOpen={startGame}
           onStart={setConfigGame}
+          handleInitGame={handleInitGame}
           onClose={() => {
             setStartGame(false);
           }}
