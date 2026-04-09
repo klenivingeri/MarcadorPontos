@@ -1,6 +1,6 @@
 {
-  "name": "Truco Score",
-  "short_name": "TruScore",
+  "name": "TruKando",
+  "short_name": "TruKando",
   "description": "Marcados de pontos e historico de partidas para jogos",
   "start_url": "/",
   "scope": "/",

@@ -5,7 +5,8 @@ import React, { useEffect, useState } from "react";
 const ConfigModal = ({ isOpen, onClose }) => {
   const [config, setConfig] = useState({ 
     groupName: "", 
-    vibrate: true, 
+    vibrate: true,
+    buttonVisible: true,
     bgUrl: "" 
   });
 
@@ -28,6 +29,13 @@ const ConfigModal = ({ isOpen, onClose }) => {
     navigator.clipboard.writeText("8728a6b0-141d-445a-88cb-18cb91149ee6");
     setPixCopied(true);
     setTimeout(() => setPixCopied(false), 2000);
+  };
+
+  const handleToggle = (key) => {
+    const updated = { ...config, [key]: !config[key] };
+    setConfig(updated);
+    localStorage.setItem("truscore_settings", JSON.stringify(updated));
+    window.dispatchEvent(new Event("storage"));
   };
 
   if (!isOpen) return null;
@@ -84,24 +92,35 @@ const ConfigModal = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2">
-                <span className="text-xs font-bold text-white">Vibração (Retorno tátil nos botões)</span>
-                <button
-                  onClick={() =>
-                    setConfig({ ...config, vibrate: !config.vibrate })
-                  }
-                  className={`w-10 h-5 rounded-full relative transition-colors ${config.vibrate ? "bg-green-500" : "bg-zinc-700"}`}
-                >
-                  <div
-                    className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.vibrate ? "left-6" : "left-1"}`}
-                  />
-                </button>
+              <div className="flex gap-2">
+                <div className="flex-1 flex items-center justify-between bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2">
+                  <span className="text-xs font-bold text-white">Vibração</span>
+                  <button
+                    onClick={() => handleToggle("vibrate")}
+                    className={`w-10 h-5 rounded-full relative transition-colors ${config.vibrate ? "bg-green-500" : "bg-zinc-700"}`}
+                  >
+                    <div
+                      className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.vibrate ? "left-6" : "left-1"}`}
+                    />
+                  </button>
+                </div>
+                <div className="flex-1 flex items-center justify-between bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2">
+                  <span className="text-xs font-bold text-white">Exibir botões</span>
+                  <button
+                    onClick={() => handleToggle("buttonVisible")}
+                    className={`w-10 h-5 rounded-full relative transition-colors ${config.buttonVisible ? "bg-green-500" : "bg-zinc-700"}`}
+                  >
+                    <div
+                      className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.buttonVisible ? "left-6" : "left-1"}`}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* Wallpaper com botão limpar */}
               <div>
                 <label className="text-[9px] uppercase font-bold text-zinc-500 tracking-wider mb-1 block">
-                  Wallpaper (URL)
+                  Wallpaper (URL/LINK)
                 </label>
                 <div className="relative group">
                   <input

@@ -35,6 +35,7 @@ export default function Arena() {
   const [settings, setSettings] = useState({
     groupName: "TruScore",
     vibrate: false,
+    buttonVisible: true,
     bgUrl: "",
   });
 
@@ -71,7 +72,11 @@ export default function Arena() {
 
   const handleAddPoints = (side, value) => {
     // Retorno tátil opcional ao atribuir pontos
-    if (settings.vibrate && typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+    if (
+      settings.vibrate &&
+      typeof navigator !== "undefined" &&
+      typeof navigator.vibrate === "function"
+    ) {
       navigator.vibrate(25);
     }
 
@@ -316,25 +321,30 @@ export default function Arena() {
         )}
 
         {/* COLUNA ESQUERDA (Superior no Mobile) */}
-        <aside className="flex flex-row sm:flex-col justify-between w-full sm:w-24 h-24 sm:h-auto gap-2 mb-2 sm:mb-0">
-          <button
-            onClick={() => handleAddPoints("left", 3)}
-            className="flex-1 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center"
-          >
-            <span className="text-[10px] text-zinc-400 uppercase font-bold">
-              Truco
-            </span>
-            <span className="text-xl font-black">+3</span>
-          </button>
-          {[6, 9, 12].map((v) => (
-            <button
-              key={v}
-              onClick={() => handleAddPoints("left", v)}
-              className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all font-bold text-lg"
-            >
-              {v === 12 ? "12" : `+${v}`}
-            </button>
-          ))}
+
+        <aside
+          className={`flex flex-row sm:flex-col ${settings.buttonVisible ? "justify-between" : "justify-end"} w-full sm:w-24 h-24 sm:h-auto gap-2 mt-2 sm:mt-0 text-zinc-400`}
+        >
+          {settings.buttonVisible && (
+            <>
+              <button
+                onClick={() => handleAddPoints("left", 3)}
+                className="flex-1 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center"
+              >
+                <span className="text-[10px] uppercase font-bold">Truco</span>
+                <span className="text-xl font-black text-white">+3</span>
+              </button>
+              {[6, 9, 12].map((v) => (
+                <button
+                  key={v}
+                  onClick={() => handleAddPoints("left", v)}
+                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all font-bold text-lg"
+                >
+                  {v === 12 ? "12" : `+${v}`}
+                </button>
+              ))}
+            </>
+          )}
           <button
             onClick={() => setPointsLeft(Math.max(0, pointsLeft - 1))}
             className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
@@ -398,7 +408,7 @@ export default function Arena() {
                   {[...Array(configGame.maxRounds)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-lg sm:text-xl ${i < setsLeft ? "text-green-500" : "text-zinc-800"}`}
+                      className={`text-4xl sm:text-3xl ${i < setsLeft ? "text-green-500" : "text-zinc-800"}`}
                     >
                       ●
                     </span>
@@ -409,7 +419,7 @@ export default function Arena() {
                   {[...Array(configGame.maxRounds)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-lg sm:text-xl ${i < setsRight ? "text-green-500" : "text-zinc-800"}`}
+                      className={`text-4xl sm:text-3xl ${i < setsRight ? "text-green-500" : "text-zinc-800"}`}
                     >
                       ●
                     </span>
@@ -480,7 +490,7 @@ export default function Arena() {
               <span className="block text-[8rem] sm:text-[15rem] font-black leading-none tracking-tighter">
                 {String(pointsLeft).padStart(2, "0")}
               </span>
-              <span className="text-xs uppercase tracking-widest text-zinc-200 font-bold">
+              <span className="text-md uppercase tracking-widest text-zinc-200 font-bold">
                 {configGame?.teamLeft}
               </span>
             </div>
@@ -492,7 +502,7 @@ export default function Arena() {
               <span className="block text-[8rem] sm:text-[15rem] font-black leading-none tracking-tighter text-zinc-400">
                 {String(pointsRight).padStart(2, "0")}
               </span>
-              <span className="text-xs uppercase tracking-widest text-zinc-200 font-bold">
+              <span className="text-md uppercase tracking-widest text-zinc-200 font-bold">
                 {configGame?.teamRight}
               </span>
             </div>
@@ -511,23 +521,30 @@ export default function Arena() {
         </main>
 
         {/* COLUNA DIREITA (Inferior no Mobile) */}
-        <aside className="flex flex-row sm:flex-col justify-between w-full sm:w-24 h-24 sm:h-auto gap-2 mt-2 sm:mt-0 text-zinc-400">
-          <button
-            onClick={() => handleAddPoints("right", 3)}
-            className="flex-1 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center"
-          >
-            <span className="text-[10px] uppercase font-bold">Truco</span>
-            <span className="text-xl font-black text-white">+3</span>
-          </button>
-          {[6, 9, 12].map((v) => (
-            <button
-              key={v}
-              onClick={() => handleAddPoints("right", v)}
-              className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all font-bold text-lg"
-            >
-              {v === 12 ? "12" : `+${v}`}
-            </button>
-          ))}
+
+        <aside
+          className={`flex flex-row sm:flex-col ${settings.buttonVisible ? "justify-between" : "justify-end"} w-full sm:w-24 h-24 sm:h-auto gap-2 mt-2 sm:mt-0 text-zinc-400`}
+        >
+          {settings.buttonVisible && (
+            <>
+              <button
+                onClick={() => handleAddPoints("right", 3)}
+                className="flex-1 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center"
+              >
+                <span className="text-[10px] uppercase font-bold">Truco</span>
+                <span className="text-xl font-black text-white">+3</span>
+              </button>
+              {[6, 9, 12].map((v) => (
+                <button
+                  key={v}
+                  onClick={() => handleAddPoints("right", v)}
+                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all font-bold text-lg"
+                >
+                  {v === 12 ? "12" : `+${v}`}
+                </button>
+              ))}
+            </>
+          )}
           <button
             onClick={() => setPointsRight(Math.max(0, pointsRight - 1))}
             className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
@@ -535,6 +552,7 @@ export default function Arena() {
             -1
           </button>
         </aside>
+
         <ConfigModal
           isOpen={showConfig}
           onClose={() => {
