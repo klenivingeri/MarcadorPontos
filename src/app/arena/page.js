@@ -6,6 +6,7 @@ import MatchConfigModal from "@/components/InitGame/MatchConfigModal";
 import Confetti from "react-confetti-boom";
 import { colors_from_image } from "@/constants/colors";
 import ChampionModal from "@/components/Winner/ChampionModal";
+import Link from "next/link";
 
 export default function Arena() {
   const [pointsLeft, setPointsLeft] = useState(0);
@@ -321,6 +322,25 @@ export default function Arena() {
         <main className="flex-1 flex flex-col px-4 min-h-0">
           <header className="flex justify-between items-start pt-2">
             <div className="flex gap-1 w-12 sm:w-24">
+              <Link
+                href="/"
+                className="p-2 text-zinc-500 hover:text-white transition-colors"
+                title="Voltar"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
+              </Link>
               <button
                 onClick={() => {
                   setStartGame(true);

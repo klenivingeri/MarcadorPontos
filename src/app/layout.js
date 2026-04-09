@@ -17,6 +17,8 @@ export const metadata = {
   title: "TruScore - Marcados de Pontos e historico de partidas para jogos",
   description: "TruScore - Marcados de Pontos e historico de partidas para jogos",
   manifest: "/manifest.json",
+  themeColor: "#000000",
+  background: "#000000",
   icons: {
     apple: [
       {
