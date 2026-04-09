@@ -1,5 +1,6 @@
 import { Inter, Roboto } from "next/font/google";
 import "./globals.css";
+import ServiceWorkerRegistry from "./ServiceWorkerRegistry";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -47,7 +48,10 @@ export default function RootLayout({ children }) {
       lang="pt"
       className={`${inter.variable} ${roboto.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ServiceWorkerRegistry />
+        {children}
+      </body>
     </html>
   );
 }
