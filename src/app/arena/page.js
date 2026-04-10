@@ -89,11 +89,12 @@ export default function Arena() {
     }));
 
     const oppositeSide = side === "left" ? "right" : "left";
-    
+
     // Define o nome do time que está perdendo
-    const losingTeamName = oppositeSide === "left" ? configGame.teamLeft : configGame.teamRight;
+    const losingTeamName =
+      oppositeSide === "left" ? configGame.teamLeft : configGame.teamRight;
     setPatoLosingTeam(losingTeamName);
-    
+
     setPatoSide(oppositeSide);
     setShowPato(true);
     patoTimeoutRef.current = setTimeout(() => {
@@ -152,12 +153,12 @@ export default function Arena() {
 
     if (side === "left") {
       const newTotal = updatePoints(pointsLeft);
-      if (newTotal >= 15) triggerFinishSequence("left");
-      else setPointsLeft(newTotal);
+      setPointsLeft(newTotal);
+      if (newTotal >= 15) setTimeout(() => triggerFinishSequence("left"), 100);
     } else {
       const newTotal = updatePoints(pointsRight);
-      if (newTotal >= 15) triggerFinishSequence("right");
-      else setPointsRight(newTotal);
+      setPointsRight(newTotal);
+      if (newTotal >= 15) setTimeout(() => triggerFinishSequence("right"), 100);
     }
 
     // Libera o clique após 500ms
@@ -277,7 +278,7 @@ export default function Arena() {
           />
         )}
         {finishModal.visible && (
-          <div className="absolute inset-0 z-[120] bg-black/70 backdrop-blur-xl flex items-center justify-center p-2 text-center">
+          <div className="animate-slow-fade absolute inset-0 z-[120] bg-black/70 backdrop-blur-xl flex items-center justify-center p-2 text-center">
             <div className="max-w-sm w-full bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem] shadow-2xl overflow-y-auto max-h-[98vh] scrollbar-hide">
               {/* Título menor e com menos margem */}
               <h2 className="text-zinc-600 font-black text-xs uppercase mb-1 tracking-widest">
@@ -414,7 +415,7 @@ export default function Arena() {
               ))}
             </>
           )}
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <button
               onClick={() => setPointsLeft(Math.max(0, pointsLeft - 1))}
               className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
@@ -449,6 +450,7 @@ export default function Arena() {
             <div className="flex gap-1 w-12 sm:w-24">
               <Link
                 href="/"
+                prefetch
                 className="p-2 text-zinc-500 hover:text-white transition-colors"
                 title="Voltar"
               >
@@ -636,7 +638,7 @@ export default function Arena() {
             </>
           )}
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             {patoAvailable.right && canLaunchPato("right") && (
               /* Wrapper relativo para o efeito não quebrar o flex */
               <div className="relative w-14 sm:w-full h-14">
@@ -656,10 +658,9 @@ export default function Arena() {
                 ></button>
               </div>
             )}
-
             <button
               onClick={() => setPointsRight(Math.max(0, pointsRight - 1))}
-              className="w-14 sm:w-full h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
+              className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
             >
               -1
             </button>

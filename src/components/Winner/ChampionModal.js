@@ -46,7 +46,7 @@ const ChampionModal = ({ isOpen, winnerName, score, onRestart, configGame }) => 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[300] bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
+    <div className="fixed animate-slow-fade inset-0 z-[300] bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4">
       {/* Reduzido max-w para sm e adicionado flex-row em telas muito largas se necessário, 
           mas aqui focamos em encolher o conteúdo vertical */}
       <div className="relative w-full max-w-sm bg-zinc-900 border border-zinc-800 rounded-[2rem] shadow-[0_0_50px_-12px_rgba(34,197,94,0.3)] overflow-hidden max-h-[98vh] flex flex-col">
