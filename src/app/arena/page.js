@@ -6,6 +6,7 @@ import MatchConfigModal from "@/components/InitGame/MatchConfigModal";
 import Confetti from "react-confetti-boom";
 import { colors_from_image } from "@/constants/colors";
 import ChampionModal from "@/components/Winner/ChampionModal";
+import Pato from "@/components/pato";
 import Link from "next/link";
 
 export default function Arena() {
@@ -31,6 +32,13 @@ export default function Arena() {
     countdown: 10,
   });
   const timerRef = useRef(null);
+  const patoTimeoutRef = useRef(null);
+  const [showPato, setShowPato] = useState(false);
+  const [patoSide, setPatoSide] = useState("right");
+  const [patoAvailable, setPatoAvailable] = useState({
+    left: false,
+    right: false,
+  });
 
   const [settings, setSettings] = useState({
     groupName: "TruScore",
@@ -51,6 +59,41 @@ export default function Arena() {
     window.addEventListener("storage", loadSettings);
     return () => window.removeEventListener("storage", loadSettings);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (patoTimeoutRef.current) {
+        clearTimeout(patoTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const canLaunchPato = (side) => {
+    const diff =
+      side === "right" ? pointsRight - pointsLeft : pointsLeft - pointsRight;
+    return diff >= 6;
+  };
+
+  const handleLaunchPato = (side) => {
+    if (!canLaunchPato(side)) return;
+
+    if (patoTimeoutRef.current) {
+      clearTimeout(patoTimeoutRef.current);
+    }
+
+    // Desabilita o pato do lado que foi clicado
+    setPatoAvailable((prev) => ({
+      ...prev,
+      [side]: false,
+    }));
+
+    const oppositeSide = side === "left" ? "right" : "left";
+    setPatoSide(oppositeSide);
+    setShowPato(true);
+    patoTimeoutRef.current = setTimeout(() => {
+      setShowPato(false);
+    }, 5000);
+  };
 
   // 4. Função que você passa para o onClose do Modal
   const updateSettings = () => {
@@ -86,12 +129,27 @@ export default function Arena() {
     // Bloqueia novos cliques
     if (value > 1) setIsProcessing(true);
 
+    // Atualiza os pontos e verifica disponibilidade do pato para each lado
+    const updatePoints = (currentPoints) => {
+      const newTotal = currentPoints + value;
+      const oppositePoints = side === "left" ? pointsRight : pointsLeft;
+      const diff = Math.abs(newTotal - oppositePoints);
+
+      // Habilita o pato se a diferença é >= 6, desabilita caso contrário
+      setPatoAvailable((prev) => ({
+        ...prev,
+        [side]: diff >= 6,
+      }));
+
+      return newTotal;
+    };
+
     if (side === "left") {
-      const newTotal = pointsLeft + value;
+      const newTotal = updatePoints(pointsLeft);
       if (newTotal >= 15) triggerFinishSequence("left");
       else setPointsLeft(newTotal);
     } else {
-      const newTotal = pointsRight + value;
+      const newTotal = updatePoints(pointsRight);
       if (newTotal >= 15) triggerFinishSequence("right");
       else setPointsRight(newTotal);
     }
@@ -171,6 +229,10 @@ export default function Arena() {
     setSetsRight(0);
     setShowMaoDeFerro(false);
     setIsProcessing(false);
+    setPatoAvailable({
+      left: false,
+      right: false,
+    });
     setFinishModal({
       visible: false,
       winner: null,
@@ -345,12 +407,33 @@ export default function Arena() {
               ))}
             </>
           )}
-          <button
-            onClick={() => setPointsLeft(Math.max(0, pointsLeft - 1))}
-            className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
-          >
-            -1
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setPointsLeft(Math.max(0, pointsLeft - 1))}
+              className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
+            >
+              -1
+            </button>
+
+            {patoAvailable.left && canLaunchPato("left") && (
+              /* Wrapper relativo para o efeito não quebrar o flex */
+              <div className="relative w-14 sm:w-full h-14">
+                {/* O Ping: Fica exatamente atrás do botão */}
+                <span className="absolute inset-0 rounded-xl bg-purple-500 opacity-75 animate-ping"></span>
+                <button
+                  type="button"
+                  onClick={() => handleLaunchPato("left")}
+                  style={{
+                    backgroundImage: "url(/pato.gif)",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                  /* relative e z-10 para ficar na frente do ping */
+                  className="relative z-10 w-full h-full bg-cyan-900/20 border border-cyan-500 rounded-xl text-cyan-200 font-bold hover:bg-cyan-800/40"
+                ></button>
+              </div>
+            )}
+          </div>
         </aside>
 
         {/* CENTRO */}
@@ -479,15 +562,15 @@ export default function Arena() {
                 h-[1px] w-full 
                 bg-gradient-to-r from-transparent via-zinc-800 to-transparent
                 sm:left-1/2 sm:right-auto sm:top-0 sm:bottom-0 sm:translate-y-0
-                sm:w-[1px] sm:h-full 
+                sm:w-[2px] sm:h-full 
                 sm:bg-gradient-to-b
               "
             ></div>
             <div
-              className="text-center z-10 py-4 mt-1 sm:py-0 pr-4 w-full"
+              className="text-center z-10 py-4 sm:py-0 pr-6 w-full"
               onClick={() => handleAddPoints("left", 1)}
             >
-              <span className="block text-[8rem] sm:text-[15rem] font-black leading-none tracking-tighter">
+              <span className="block text-[12rem] sm:text-[15rem] font-black leading-none tracking-tighter">
                 {String(pointsLeft).padStart(2, "0")}
               </span>
               <span className="text-md uppercase tracking-widest text-zinc-200 font-bold">
@@ -496,10 +579,10 @@ export default function Arena() {
             </div>
 
             <div
-              className="text-center z-10 py-4 sm:py-0 pr-4 mt-1 w-full"
+              className="text-center z-10 py-4 sm:py-0 w-full"
               onClick={() => handleAddPoints("right", 1)}
             >
-              <span className="block text-[8rem] sm:text-[15rem] font-black leading-none tracking-tighter text-zinc-400">
+              <span className="block text-[12rem] sm:text-[15rem] font-black leading-none tracking-tighter text-zinc-400">
                 {String(pointsRight).padStart(2, "0")}
               </span>
               <span className="text-md uppercase tracking-widest text-zinc-200 font-bold">
@@ -545,14 +628,38 @@ export default function Arena() {
               ))}
             </>
           )}
-          <button
-            onClick={() => setPointsRight(Math.max(0, pointsRight - 1))}
-            className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
-          >
-            -1
-          </button>
+
+          <div className="flex gap-2">
+            {patoAvailable.right && canLaunchPato("right") && (
+              /* Wrapper relativo para o efeito não quebrar o flex */
+              <div className="relative w-14 sm:w-full h-14">
+                {/* O Ping: Fica exatamente atrás do botão */}
+                <span className="absolute inset-0 rounded-xl bg-purple-500 opacity-75 animate-ping"></span>
+                <button
+                  type="button"
+                  onClick={() => handleLaunchPato("right")}
+                  style={{
+                    backgroundImage: "url(/pato.gif)",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    transform: "scaleX(-1)",
+                  }}
+                  /* relative e z-10 para ficar na frente do ping */
+                  className="relative z-10 w-full h-full bg-cyan-900/20 border border-cyan-500 rounded-xl text-cyan-200 font-bold hover:bg-cyan-800/40"
+                ></button>
+              </div>
+            )}
+
+            <button
+              onClick={() => setPointsRight(Math.max(0, pointsRight - 1))}
+              className="w-14 sm:w-full h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
+            >
+              -1
+            </button>
+          </div>
         </aside>
 
+        {showPato && <Pato side={patoSide} />}
         <ConfigModal
           isOpen={showConfig}
           onClose={() => {
