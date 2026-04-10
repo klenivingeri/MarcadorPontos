@@ -18,7 +18,7 @@ export const metadata = {
   title: "TruKando - Marcados de Pontos e historico de partidas para jogos",
   description: "TruKando - Marcados de Pontos e historico de partidas para jogos",
   manifest: "/manifest.json",
-  themeColor: "#000000",
+  color: "#000000",
   background: "#000000",
   icons: {
     apple: [

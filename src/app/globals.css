@@ -40,3 +40,18 @@ body {
     animation: slideInFromTop 0.8s ease-out forwards;
   }
 }
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.2);
+    color: #22d3ee; /* Opcional: muda de cor no topo da onda */
+  }
+}
+
+.animate-wave {
+  display: inline-block;
+  animation: wave 1s ease-in-out infinite;
+}

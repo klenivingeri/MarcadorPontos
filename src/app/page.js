@@ -2,6 +2,7 @@
 import ConfigModal from "@/components/Menu/ConfigModal";
 import Link from "next/link";
 import React, { useState } from "react"; // Importando a função que você já tem
+import { toggleFullScreen } from "./utils/toggleFullScreen";
 
 export default function Home() {
   const [showConfig, setShowConfig] = useState(false);
@@ -81,6 +82,7 @@ export default function Home() {
           {/* Action Section */}
           <Link
             href="/arena"
+            onClick={() => toggleFullScreen() }
             className="group relative px-12 py-6 bg-white text-black rounded-[2rem] font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(34,197,94,0.2)]"
           >
             <span className="relative z-10">Iniciar Partida</span>

@@ -35,6 +35,7 @@ export default function Arena() {
   const patoTimeoutRef = useRef(null);
   const [showPato, setShowPato] = useState(false);
   const [patoSide, setPatoSide] = useState("right");
+  const [patoLosingTeam, setPatoLosingTeam] = useState("");
   const [patoAvailable, setPatoAvailable] = useState({
     left: false,
     right: false,
@@ -88,6 +89,11 @@ export default function Arena() {
     }));
 
     const oppositeSide = side === "left" ? "right" : "left";
+    
+    // Define o nome do time que está perdendo
+    const losingTeamName = oppositeSide === "left" ? configGame.teamLeft : configGame.teamRight;
+    setPatoLosingTeam(losingTeamName);
+    
     setPatoSide(oppositeSide);
     setShowPato(true);
     patoTimeoutRef.current = setTimeout(() => {
@@ -233,6 +239,7 @@ export default function Arena() {
       left: false,
       right: false,
     });
+    setPatoLosingTeam("");
     setFinishModal({
       visible: false,
       winner: null,
@@ -659,7 +666,7 @@ export default function Arena() {
           </div>
         </aside>
 
-        {showPato && <Pato side={patoSide} />}
+        {showPato && <Pato side={patoSide} losingTeamName={patoLosingTeam} />}
         <ConfigModal
           isOpen={showConfig}
           onClose={() => {
