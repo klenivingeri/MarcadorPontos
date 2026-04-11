@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useRef, useState } from "react";
 
 const GAME_HISTORY_STORAGE_KEY = "game_history";
+export const LAST_FINISHED_GAME_STORAGE_KEY = "last_finished_game";
 
 const GameContext = createContext(null);
 
@@ -46,9 +47,18 @@ const saveFinishedGame = (game) => {
     );
     const updatedHistory = [game, ...savedHistory.filter((entry) => entry.id !== game.id)];
     localStorage.setItem(GAME_HISTORY_STORAGE_KEY, JSON.stringify(updatedHistory));
+    localStorage.setItem(LAST_FINISHED_GAME_STORAGE_KEY, JSON.stringify(game));
   } catch (error) {
     console.error("Erro ao salvar histórico da partida:", error);
   }
+};
+
+const clearFinishedGameSnapshot = () => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  localStorage.removeItem(LAST_FINISHED_GAME_STORAGE_KEY);
 };
 
 const applySetResult = (game, winnerSide, options = {}) => {
@@ -97,6 +107,7 @@ export function GameProvider({ children }) {
 
   const startGame = (config) => {
     currentSequenceRef.current = { left: 0, right: 0 };
+    clearFinishedGameSnapshot();
     const nextGame = createGame(config);
     return commitGame(nextGame);
   };
@@ -209,6 +220,7 @@ export function GameProvider({ children }) {
 
   const clearCurrentGame = () => {
     currentSequenceRef.current = { left: 0, right: 0 };
+    clearFinishedGameSnapshot();
     return commitGame(null);
   };
 

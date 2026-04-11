@@ -1,11 +1,11 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { toggleFullScreen } from "../utils/toggleFullScreen";
 import ConfigModal from "@/components/Menu/ConfigModal";
 import MatchConfigModal from "@/components/InitGame/MatchConfigModal";
 import Confetti from "react-confetti-boom";
 import { colors_from_image } from "@/constants/colors";
-import ChampionModal from "@/components/Winner/ChampionModal";
 import Pato from "@/components/pato";
 import Link from "next/link";
 import { useGame } from "@/context/GameContext";
@@ -21,11 +21,10 @@ const createFinishModalState = () => ({
   visible: false,
   winner: null,
   countdown: INIT_GAME_COUNTDOWN,
-  championVisible: false,
-  gameSnapshot: null,
 });
 
 export default function Arena() {
+  const router = useRouter();
   const {
     currentGame,
     startGame: startMatch,
@@ -33,7 +32,6 @@ export default function Arena() {
     subtractPoint,
     completeSet,
     finalizeGame,
-    clearCurrentGame,
   } = useGame();
   const [showMaoDeFerro, setShowMaoDeFerro] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -186,21 +184,15 @@ export default function Arena() {
     const isFinalVictory = nextSetsValue >= configGame.maxRounds;
 
     if (isFinalVictory) {
-      const finishedGame = finalizeGame(winner);
-      setFinishModal({
-        visible: false,
-        winner: winner,
-        countdown: 0,
-        championVisible: true,
-        gameSnapshot: finishedGame,
-      });
+      finalizeGame(winner);
+      setShowMaoDeFerro(false);
+      setFinishModal(createFinishModalState());
+      router.replace("/arena/champion");
     } else {
       setFinishModal({
         visible: true,
         winner,
         countdown: INIT_GAME_COUNTDOWN,
-        championVisible: false,
-        gameSnapshot: null,
       });
     }
   };
@@ -256,12 +248,6 @@ export default function Arena() {
     setFinishModal(createFinishModalState());
   };
 
-  const handleResetFullGame = () => {
-    handleInitGame();
-    clearCurrentGame();
-    setStartGame(true);
-  };
-
   return (
     <div
       className="fixed inset-0 flex flex-col sm:flex-row items-stretch bg-black text-white font-sans overflow-hidden p-2 select-none"
@@ -273,28 +259,6 @@ export default function Arena() {
     >
       <div className="fixed inset-0 flex flex-col sm:flex-row items-stretch bg-black/90 text-white font-sans overflow-hidden p-2 select-none">
         {/* MODAL DE FINALIZAÇÃO */}
-        {finishModal.championVisible && (
-          <ChampionModal
-            isOpen={finishModal.championVisible}
-            winnerName={
-              finishModal.gameSnapshot?.teams?.find(
-                (team) => team.id === finishModal.gameSnapshot?.sets?.at(-1)?.winnerTeamId,
-              )?.name ||
-              (finishModal.winner === "left"
-                ? configGame.teamLeft
-                : configGame.teamRight)
-            }
-            score={{
-              left: finishModal.gameSnapshot?.teams?.[0]?.setsWon || setsLeft,
-              right: finishModal.gameSnapshot?.teams?.[1]?.setsWon || setsRight,
-            }}
-            configGame={configGame}
-            onRestart={handleResetFullGame}
-            onClose={() =>
-              setFinishModal((p) => ({ ...p, championVisible: false }))
-            }
-          />
-        )}
         {finishModal.visible && (
           <div className="animate-slow-fade absolute inset-0 z-[120] bg-black/70 backdrop-blur-xl flex items-center justify-center p-2 text-center">
             <div className="max-w-sm w-full bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem] shadow-2xl overflow-y-auto max-h-[98vh] scrollbar-hide">
