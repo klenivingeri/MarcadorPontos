@@ -1,6 +1,6 @@
 "use client";
 
-import React, { startTransition, useEffect, useMemo, useState } from "react";
+import React, { Suspense, startTransition, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Confetti from "react-confetti-boom";
@@ -20,7 +20,7 @@ const getWinnerName = (winner, game) => {
   return winner === "left" ? game.teams[0]?.name : game.teams[1]?.name;
 };
 
-export default function RoundFinishPage() {
+function RoundFinishContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { currentGame, completeSet } = useGame();
@@ -192,5 +192,13 @@ export default function RoundFinishPage() {
     </div>
     <Confetti mode="boom" shapeSize={15} colors={colors_from_image} />
     </>
+  );
+}
+
+export default function RoundFinishPage() {
+  return (
+    <Suspense fallback={null}>
+      <RoundFinishContent />
+    </Suspense>
   );
 }

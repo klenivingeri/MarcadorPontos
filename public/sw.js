@@ -1,5 +1,5 @@
 // Service Worker para cache offline
-const CACHE_NAME = 'trukando-v1.0.1';
+const CACHE_NAME = 'trukando-v1.0.2';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',

@@ -41,15 +41,15 @@ const ConfigModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
-      <div className="w-full max-w-3xl bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl flex flex-col max-h-[95vh] overflow-hidden">
-        <header className="px-5 py-3 border-b border-zinc-800 flex justify-between items-center">
-          <h2 className="text-sm font-black uppercase tracking-widest text-white/50">
+    <div className="fixed inset-0 z-200 bg-black/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+      <div className="w-full max-w-3xl bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.16),transparent_60%)] bg-black/20 backdrop-blur-md border border-white/10 rounded-3xl shadow-xl flex flex-col max-h-[95vh] overflow-hidden">
+        <header className="px-5 py-3 border-b border-white/10 flex justify-between items-center">
+          <h2 className="text-sm font-black uppercase tracking-widest text-zinc-300/80">
             Ajustes
           </h2>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-zinc-800 rounded-lg transition-colors"
+            className="p-1.5 hover:bg-white/10 rounded-lg transition-colors border border-transparent hover:border-white/10"
           >
             <svg
               width="20"
@@ -65,11 +65,11 @@ const ConfigModal = ({ isOpen, onClose }) => {
         </header>
 
         <div className="flex-1 flex flex-col md:flex-row overflow-y-auto">
-          <div className="flex-1 p-5 space-y-4 border-b md:border-b-0 md:border-r border-zinc-800">
+          <div className="flex-1 p-5 space-y-4 border-b md:border-b-0 md:border-r border-white/10">
             <div className="space-y-3">
               {/* Identificador com botão limpar */}
               <div>
-                <label className="text-[9px] uppercase font-bold text-zinc-500 tracking-wider mb-1 block">
+                <label className="text-[9px] uppercase font-black text-zinc-400 tracking-wider mb-1 block">
                   Identificador
                 </label>
                 <div className="relative group">
@@ -79,12 +79,12 @@ const ConfigModal = ({ isOpen, onClose }) => {
                     onChange={(e) =>
                       setConfig({ ...config, groupName: e.target.value })
                     }
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 pr-8 text-sm text-white focus:border-green-500 outline-none"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 pr-8 text-sm text-white placeholder:text-zinc-500 focus:border-green-500/70 focus:bg-green-500/5 outline-none transition-all"
                   />
                   {config.groupName && (
                     <button 
                       onClick={() => setConfig({ ...config, groupName: "" })}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white p-1"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white p-1 transition-colors"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
@@ -93,22 +93,22 @@ const ConfigModal = ({ isOpen, onClose }) => {
               </div>
 
               <div className="flex gap-2">
-                <div className="flex-1 flex items-center justify-between bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2">
+                <div className="flex-1 flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-3 py-2">
                   <span className="text-xs font-bold text-white">Vibração</span>
                   <button
                     onClick={() => handleToggle("vibrate")}
-                    className={`w-10 h-5 rounded-full relative transition-colors ${config.vibrate ? "bg-green-500" : "bg-zinc-700"}`}
+                    className={`w-10 h-5 rounded-full relative transition-all ${config.vibrate ? "bg-green-500 shadow-lg shadow-green-500/30" : "bg-white/15"}`}
                   >
                     <div
                       className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.vibrate ? "left-6" : "left-1"}`}
                     />
                   </button>
                 </div>
-                <div className="flex-1 flex items-center justify-between bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2">
+                <div className="flex-1 flex items-center justify-between bg-white/5 border border-white/10 rounded-xl px-3 py-2">
                   <span className="text-xs font-bold text-white">Exibir botões</span>
                   <button
                     onClick={() => handleToggle("buttonVisible")}
-                    className={`w-10 h-5 rounded-full relative transition-colors ${config.buttonVisible ? "bg-green-500" : "bg-zinc-700"}`}
+                    className={`w-10 h-5 rounded-full relative transition-all ${config.buttonVisible ? "bg-green-500 shadow-lg shadow-green-500/30" : "bg-white/15"}`}
                   >
                     <div
                       className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${config.buttonVisible ? "left-6" : "left-1"}`}
@@ -119,7 +119,7 @@ const ConfigModal = ({ isOpen, onClose }) => {
 
               {/* Wallpaper com botão limpar */}
               <div>
-                <label className="text-[9px] uppercase font-bold text-zinc-500 tracking-wider mb-1 block">
+                <label className="text-[9px] uppercase font-black text-zinc-400 tracking-wider mb-1 block">
                   Wallpaper (URL/LINK)
                 </label>
                 <div className="relative group">
@@ -129,12 +129,12 @@ const ConfigModal = ({ isOpen, onClose }) => {
                     onChange={(e) =>
                       setConfig({ ...config, bgUrl: e.target.value })
                     }
-                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 pr-8 text-xs text-white outline-none focus:border-green-500 transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 pr-8 text-xs text-white placeholder:text-zinc-500 outline-none focus:border-green-500/70 focus:bg-green-500/5 transition-all"
                   />
                   {config.bgUrl && (
                     <button 
                       onClick={() => setConfig({ ...config, bgUrl: "" })}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white p-1"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white p-1 transition-colors"
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
                     </button>
@@ -144,25 +144,25 @@ const ConfigModal = ({ isOpen, onClose }) => {
 
               <button
                 onClick={handleSave}
-                className="w-full bg-green-500 text-black py-3 rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all"
+                className="w-full bg-linear-to-r from-green-500 to-green-400 text-black py-3 rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-green-500/25 hover:shadow-green-500/40"
               >
                 Salvar
               </button>
             </div>
           </div>
 
-          <div className="flex-1 p-5 bg-black/20 flex flex-col items-center justify-center text-center space-y-3">
+          <div className="flex-1 p-5 bg-white/5 flex flex-col items-center justify-center text-center space-y-3">
             <div className="space-y-1">
-              <h3 className="text-xs font-black text-green-500 uppercase italic">
+              <h3 className="text-xs font-black text-green-400 uppercase italic tracking-wide">
                 Apoie o Projeto
               </h3>
-              <p className="text-[10px] text-zinc-500 leading-tight">
+              <p className="text-[10px] text-zinc-400/80 leading-tight">
                 Mantenha o app sem anúncios
               </p>
             </div>
 
-            <div className="bg-white p-2 rounded-xl">
-              <div className="w-24 h-24 bg-zinc-200 flex items-center justify-center">
+            <div className="bg-white p-2 rounded-xl shadow-xl">
+              <div className="w-24 h-24 bg-zinc-200 flex items-center justify-center rounded-md overflow-hidden">
                 <Image
                   src="/icons/Qrcode.png"
                   alt="QR Code Pix"
@@ -177,8 +177,8 @@ const ConfigModal = ({ isOpen, onClose }) => {
               onClick={copyPix}
               className={`w-full py-2 rounded-xl font-black uppercase text-[9px] transition-all border ${
                 pixCopied
-                  ? "bg-green-500 border-green-500 text-black"
-                  : "bg-transparent border-zinc-800 text-zinc-400"
+                  ? "bg-green-500 border-green-400 text-black"
+                  : "bg-white/5 border-white/10 text-zinc-300 hover:border-white/20"
               }`}
             >
               {pixCopied ? "Copiado!" : "Copiar Pix"}
