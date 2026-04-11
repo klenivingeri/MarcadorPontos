@@ -39,6 +39,7 @@ function ArenaContent() {
   const [showPato, setShowPato] = useState(false);
   const [patoSide, setPatoSide] = useState("right");
   const [patoLosingTeam, setPatoLosingTeam] = useState("");
+  const [isPortrait, setIsPortrait] = useState(false);
   const [useMirroredScore, setUseMirroredScore] = useState(false);
   const [showLeastOne, setShowLeastOne] = useState(false);
   const [disabledPatoSides, setDisabledPatoSides] = useState({
@@ -66,12 +67,26 @@ function ArenaContent() {
   };
   const roundsDotSizeClass =
     configGame.maxRounds >= 7
-      ? "text-2xl sm:text-xl"
+      ? "text-xl sm:text-xl"
       : configGame.maxRounds >= 5
-        ? "text-3xl sm:text-2xl"
+        ? "text-2xl sm:text-2xl"
         : "text-4xl sm:text-3xl";
-  const roundsGapClass = configGame.maxRounds >= 7 ? "gap-2 sm:gap-3" : "gap-4 sm:gap-6";
-  const roundsDotGapClass = configGame.maxRounds >= 7 ? "gap-0.5" : "gap-1";
+  const roundsGapClass = configGame.maxRounds >= 7
+    ? "gap-1 sm:gap-3"
+    : configGame.maxRounds >= 5
+      ? "gap-2 sm:gap-4"
+      : "gap-4 sm:gap-6";
+  const roundsDotGapClass = configGame.maxRounds >= 7
+    ? "gap-0"
+    : configGame.maxRounds >= 5
+      ? "gap-0.5"
+      : "gap-1";
+  const roundsScaleClass = configGame.maxRounds >= 7
+    ? "scale-90 sm:scale-100"
+    : configGame.maxRounds >= 5
+      ? "scale-95 sm:scale-100"
+      : "";
+  const isMirrorActive = isPortrait && useMirroredScore;
   const patoAvailable = {
     left:
       !!currentGame &&
@@ -86,10 +101,10 @@ function ArenaContent() {
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 1024px) and (orientation: portrait)");
     const applyOrientation = (event) => {
-      setUseMirroredScore(event.matches);
+      setIsPortrait(event.matches);
     };
 
-    setUseMirroredScore(mediaQuery.matches);
+    setIsPortrait(mediaQuery.matches);
 
     if (typeof mediaQuery.addEventListener === "function") {
       mediaQuery.addEventListener("change", applyOrientation);
@@ -306,17 +321,17 @@ function ArenaContent() {
           side="left"
           buttonVisible={settings.buttonVisible}
           onAddPoints={handleAddPoints}
-          invertAxis={useMirroredScore}
+          invertAxis={isMirrorActive}
         />
 
         <main className="relative flex-1 flex flex-col px-4 min-h-0">
           <header
-            className={useMirroredScore
+            className={isMirrorActive
               ? "absolute top-1/2 left-0 right-0 -translate-y-1/2 z-40 flex items-center justify-between rounded-2xl bg-black/20 backdrop-blur-md shadow-xl pointer-events-none"
               : "flex justify-between items-start pt-2"
             }
           >
-            <div className={`flex gap-1 w-full ${useMirroredScore ? "pointer-events-auto" : ""}`}>
+            <div className={`flex flex-1 min-w-0 gap-1 ${isMirrorActive ? "pointer-events-auto" : ""}`}>
               <Link
                 href="/"
                 prefetch
@@ -358,15 +373,41 @@ function ArenaContent() {
                   <path d="M3 3v5h5" />
                 </svg>
               </button>
+                            <button
+                onClick={() => isPortrait && setUseMirroredScore((prev) => !prev)}
+                disabled={!isPortrait}
+                className={`p-2 transition-colors tru-btn-icon ${
+                  !isPortrait
+                    ? "opacity-30 cursor-not-allowed"
+                    : `active:scale-90 ${isMirrorActive ? "tru-accent-text" : ""}`
+                }`}
+                title="Espelhar placar"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M4 9L12 3L20 9" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M4 15L12 21L20 15" />
+                </svg>
+              </button>
             </div>
 
             <div className="flex flex-col items-center gap-1">
-              {!useMirroredScore &&
+              {!isMirrorActive &&
               <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">
                 Rodadas
               </span>
               }
-              <div className={`flex items-center ${roundsGapClass}`}>
+              <div className={`flex shrink-0 origin-center items-center ${roundsGapClass} ${roundsScaleClass}`}>
                 <div className={`flex flex-row-reverse ${roundsDotGapClass}`}>
                   {[...Array(configGame.maxRounds)].map((_, i) => (
                     <span
@@ -391,7 +432,7 @@ function ArenaContent() {
               </div>
             </div>
 
-            <div className={`flex gap-1 w-full justify-end ${useMirroredScore ? "pointer-events-auto" : ""}`}>
+            <div className={`flex flex-1 min-w-0 gap-1 justify-end ${isMirrorActive ? "pointer-events-auto" : ""}`}>
               <button
                 onClick={() => setShowLeastOne(!showLeastOne)}
                 className="p-2 transition-colors active:scale-90 tru-btn-icon"
@@ -441,7 +482,7 @@ function ArenaContent() {
             </div>
           </header>
 
-          {useMirroredScore ? (
+          {isMirrorActive ? (
             <ArenaScoreSectionMirrored
               pointsLeft={pointsLeft}
               pointsRight={pointsRight}
