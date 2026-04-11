@@ -19,6 +19,7 @@ const THEME_OPTIONS = [
   { id: "pink", label: "Pink", color: "#E83E8C" },
   { id: "orange", label: "Orange", color: "#FF9900" },
   { id: "black", label: "Black", color: "#1C1C1C" },
+  { id: "white", label: "White", color: "#FFFFFF" },
 ];
 
 const DEFAULT_CONFIG = {
@@ -42,9 +43,9 @@ const ConfigModal = ({ isOpen, onClose }) => {
 
   const [pixCopied, setPixCopied] = useState(false);
 
-  const handleSave = () => {
+  const handleClose = () => {
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(config));
-    window.dispatchEvent(new Event("storage")); 
+    window.dispatchEvent(new Event("storage"));
     onClose();
   };
 
@@ -57,16 +58,12 @@ const ConfigModal = ({ isOpen, onClose }) => {
   const handleToggle = (key) => {
     const updated = { ...config, [key]: !config[key] };
     setConfig(updated);
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
-    window.dispatchEvent(new Event("storage"));
   };
 
   const handleSelectTheme = (theme) => {
     const updated = { ...config, theme };
     setConfig(updated);
     applyAppearance(updated);
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
-    window.dispatchEvent(new Event("storage"));
   };
 
   const handleColorModeToggle = () => {
@@ -77,8 +74,6 @@ const ConfigModal = ({ isOpen, onClose }) => {
 
     setConfig(updated);
     applyAppearance(updated);
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify(updated));
-    window.dispatchEvent(new Event("storage"));
   };
 
   if (!isOpen) return null;
@@ -92,7 +87,7 @@ const ConfigModal = ({ isOpen, onClose }) => {
             Ajustes
           </h2>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-1.5 rounded-lg transition-colors border border-transparent tru-btn-ghost"
           >
             <svg
@@ -112,30 +107,59 @@ const ConfigModal = ({ isOpen, onClose }) => {
           <div className="flex-1 p-5 space-y-4 border-b md:border-b-0 md:border-r border-white/10">
             <div className="space-y-3">
               {/* Identificador com botão limpar */}
-              <div>
-                <label className="text-[9px] uppercase font-black text-zinc-400 tracking-wider mb-1 block">
-                  Identificador
-                </label>
-                <div className="relative group">
-                  <input
-                    type="text"
-                    value={config.groupName}
-                    onChange={(e) =>
-                      setConfig({ ...config, groupName: e.target.value })
-                    }
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 pr-8 text-sm text-white placeholder:text-zinc-500 outline-none transition-all"
-                    style={{
-                      borderColor: "color-mix(in srgb, var(--tru-default) 0%, rgba(255,255,255,0.1) 100%)",
-                    }}
-                  />
-                  {config.groupName && (
-                    <button 
-                      onClick={() => setConfig({ ...config, groupName: "" })}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 transition-colors tru-btn-icon"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                    </button>
-                  )}
+              <div className="space-y-3">
+                <div>
+                  <div>
+                    <label className="text-[9px] uppercase font-black text-zinc-400 tracking-wider mb-1 block">
+                      Identificador
+                    </label>
+                    <div className="relative group">
+                      <input
+                        type="text"
+                        value={config.groupName}
+                        onChange={(e) =>
+                          setConfig({ ...config, groupName: e.target.value })
+                        }
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 pr-8 text-sm text-white placeholder:text-zinc-500 outline-none transition-all"
+                        style={{
+                          borderColor: "color-mix(in srgb, var(--tru-default) 0%, rgba(255,255,255,0.1) 100%)",
+                        }}
+                      />
+                      {config.groupName && (
+                        <button
+                          onClick={() => setConfig({ ...config, groupName: "" })}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 transition-colors tru-btn-icon"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <div>
+                    <label className="text-[9px] uppercase font-black text-zinc-400 tracking-wider mb-1 block">
+                      Wallpaper (URL/LINK)
+                    </label>
+                    <div className="relative group">
+                      <input
+                        type="text"
+                        value={config.bgUrl}
+                        onChange={(e) =>
+                          setConfig({ ...config, bgUrl: e.target.value })
+                        }
+                        className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 pr-8 text-xs text-white placeholder:text-zinc-500 outline-none transition-all"
+                      />
+                      {config.bgUrl && (
+                        <button
+                          onClick={() => setConfig({ ...config, bgUrl: "" })}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 transition-colors tru-btn-icon"
+                        >
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12" /></svg>
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -181,30 +205,7 @@ const ConfigModal = ({ isOpen, onClose }) => {
                 </button>
               </div>
 
-              {/* Wallpaper com botão limpar */}
-              <div>
-                <label className="text-[9px] uppercase font-black text-zinc-400 tracking-wider mb-1 block">
-                  Wallpaper (URL/LINK)
-                </label>
-                <div className="relative group">
-                  <input
-                    type="text"
-                    value={config.bgUrl}
-                    onChange={(e) =>
-                      setConfig({ ...config, bgUrl: e.target.value })
-                    }
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 pr-8 text-xs text-white placeholder:text-zinc-500 outline-none transition-all"
-                  />
-                  {config.bgUrl && (
-                    <button 
-                      onClick={() => setConfig({ ...config, bgUrl: "" })}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 transition-colors tru-btn-icon"
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6L6 18M6 6l12 12"/></svg>
-                    </button>
-                  )}
-                </div>
-              </div>
+
 
               <div>
                 <label className="text-[9px] uppercase font-black text-zinc-400 tracking-wider mb-2 block">
@@ -221,11 +222,10 @@ const ConfigModal = ({ isOpen, onClose }) => {
                         onClick={() => handleSelectTheme(themeOption.id)}
                         aria-label={`Tema ${themeOption.label}`}
                         title={themeOption.label}
-                        className={`h-7 w-7 rounded-full border transition-all ${
-                          isActive
-                            ? "scale-110 border-white ring-2 ring-white/40"
-                            : "border-white/20 hover:border-white/60"
-                        }`}
+                        className={`h-7 w-7 rounded-full border transition-all ${isActive
+                          ? "scale-110 border-white ring-2 ring-white/40"
+                          : "border-white/20 hover:border-white/60"
+                          }`}
                         style={{ backgroundColor: themeOption.color }}
                       >
                         <span className="sr-only">{themeOption.label}</span>
@@ -235,12 +235,7 @@ const ConfigModal = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              <button
-                onClick={handleSave}
-                className="w-full tru-btn-solid py-3 rounded-xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all tru-accent-shadow"
-              >
-                Salvar
-              </button>
+
             </div>
           </div>
 
@@ -268,11 +263,10 @@ const ConfigModal = ({ isOpen, onClose }) => {
 
             <button
               onClick={copyPix}
-              className={`w-full py-2 rounded-xl font-black uppercase text-[9px] transition-all border ${
-                pixCopied
-                  ? "tru-accent-bg tru-accent-border tru-on-accent"
-                  : "tru-btn-ghost"
-              }`}
+              className={`w-full py-2 rounded-xl font-black uppercase text-[9px] transition-all border ${pixCopied
+                ? "tru-accent-bg tru-accent-border tru-on-accent"
+                : "tru-btn-ghost"
+                }`}
             >
               {pixCopied ? "Copiado!" : "Copiar Pix"}
             </button>

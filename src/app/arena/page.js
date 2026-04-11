@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toggleFullScreen } from "../utils/toggleFullScreen";
 import ConfigModal from "@/components/Menu/ConfigModal";
 import MatchConfigModal from "@/components/InitGame/MatchConfigModal";
@@ -18,6 +18,9 @@ const DEFAULT_MATCH_CONFIG = {
 
 export default function Arena() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromHome = searchParams.get("from") === "home";
+  const initializedFromHomeRef = useRef(false);
   const {
     currentGame,
     startGame: startMatch,
@@ -90,6 +93,17 @@ export default function Arena() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!fromHome || initializedFromHomeRef.current) {
+      return;
+    }
+
+    initializedFromHomeRef.current = true;
+    handleInitGame();
+    startMatch(DEFAULT_MATCH_CONFIG);
+    setStartGame(true);
+  }, [fromHome, startMatch]);
 
   const canLaunchPato = (side) => {
     if (!currentGame) return false;

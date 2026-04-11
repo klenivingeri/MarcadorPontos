@@ -81,7 +81,7 @@ export default function Home() {
 
           {/* Action Section */}
           <Link
-            href="/arena"
+            href="/arena?from=home"
             onClick={() => toggleFullScreen() }
             className="group relative px-12 py-6 bg-white text-black rounded-4xl font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all"
             style={{ boxShadow: "0 0 40px color-mix(in srgb, var(--tru-default) 20%, transparent)" }}

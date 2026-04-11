@@ -128,7 +128,7 @@ export default function ArenaScoreSection({
       {(pointsLeft === 14 || pointsRight === 14) && (
         <button
           onClick={onPerdeTudo}
-          className="fixed bottom-24 sm:bottom-2 left-1/2 -translate-x-1/2 z-100 w-[calc(100%-4rem)] md:w-auto md:px-6 py-2 border rounded-2xl text-sm font-black uppercase animate-pulse tru-danger-soft"
+          className="fixed bottom-28 w-f sm:bottom-10 left-1/2 -translate-x-1/2 z-100 w-48 md:w-auto md:px-6 py-2 border rounded-2xl text-sm font-black uppercase animate-pulse tru-danger-soft"
         >
           Perde Tudo
         </button>

@@ -143,6 +143,16 @@ body {
   --tru-progress: #E6B34B; 
 }
 
+:root[data-theme="white"] {
+  --tru-default: #FFFFFF;
+  --tru-hover: #F5F5F5;
+  --tru-focus: #D4D4D8;
+  --tru-pressed: #E4E4E7;
+  --tru-disabled: #E5E7EB;
+  --tru-progress: #D4D4D8;
+  --tru-on-accent: #111111;
+}
+
 
 @layer utilities {
   .tru-page-bg {

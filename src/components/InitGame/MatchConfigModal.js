@@ -21,9 +21,9 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-200S bg-black/70 backdrop-blur-sm flex items-start justify-center p-4 pt-8 ">
+    <div className="fixed inset-0 z-200 tru-overlay-bg backdrop-blur-sm flex items-start justify-center p-4 pt-8 ">
       <div
-        className="w-full max-w-sm bg-black/20 backdrop-blur-md border border-white/10 shadow-xl rounded-3xl overflow-hidden"
+        className="w-full max-w-sm tru-surface tru-page-text backdrop-blur-md border shadow-xl rounded-3xl overflow-hidden"
         style={{ backgroundImage: "radial-gradient(ellipse at top, color-mix(in srgb, var(--tru-default) 15%, transparent), transparent 65%)" }}
       >
 
@@ -33,7 +33,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
             <span className="inline-block px-3 py-1 border rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-2 tru-accent-badge">
               Nova Partida
             </span>
-            <h2 className="text-xl font-black text-white uppercase italic leading-tight">
+            <h2 className="text-xl font-black tru-page-text uppercase italic leading-tight">
               Configurar
             </h2>
           </div>
@@ -41,7 +41,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
             onClick={() => onClose({ started: false })}
             className="p-2 rounded-xl transition-colors mt-1 tru-btn-ghost"
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
@@ -53,7 +53,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
           <div className="relative grid grid-cols-2 gap-2">
             {/* VS badge central */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-              <span className="bg-black/60 backdrop-blur-md border border-white/10 rounded-full px-2 py-0.5 text-[9px] font-black text-zinc-400 uppercase tracking-widest shadow-xl">
+              <span className="tru-surface backdrop-blur-md border rounded-full px-2 py-0.5 text-[9px] font-black tru-muted-text uppercase tracking-widest shadow-xl">
                 VS
               </span>
             </div>
@@ -63,7 +63,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
               { label: "Time Dir.", value: teamRight, setter: setTeamRight, placeholder: "Time 2" },
             ].map(({ label, value, setter, placeholder }) => (
               <div key={label} className="space-y-1.5">
-                <label className="text-[9px] uppercase font-black tracking-widest text-zinc-500 ml-1 block">
+                <label className="text-[9px] uppercase font-black tracking-widest tru-muted-text ml-1 block">
                   {label}
                 </label>
                 <input
@@ -71,7 +71,11 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
                   value={value}
                   onChange={(e) => setter(e.target.value)}
                   placeholder={placeholder}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-3 py-3 text-xs font-bold text-white placeholder:text-zinc-600 outline-none transition-all"
+                  className="w-full rounded-2xl px-3 py-3 text-xs font-bold tru-page-text placeholder:tru-muted-text outline-none transition-all"
+                  style={{
+                    backgroundColor: "color-mix(in srgb, var(--surface) 82%, transparent)",
+                    border: "1px solid var(--surface-border)",
+                  }}
                 />
               </div>
             ))}
@@ -79,7 +83,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
 
           {/* ROUNDS */}
           <div className="space-y-2">
-            <label className="text-[9px] uppercase font-black tracking-widest text-zinc-500 ml-1 block">
+            <label className="text-[9px] uppercase font-black tracking-widest tru-muted-text ml-1 block">
               Melhor de
             </label>
             <div className="flex gap-2">
@@ -97,7 +101,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
                 </button>
               ))}
             </div>
-            <p className="text-[9px] text-zinc-600 text-center">
+            <p className="text-[9px] tru-muted-text text-center">
               {rounds === 1 ? "1 set único" : `Melhor de ${rounds} sets`}
             </p>
           </div>
