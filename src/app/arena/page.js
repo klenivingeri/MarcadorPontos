@@ -336,7 +336,7 @@ export default function Arena() {
                   {[...Array(configGame.maxRounds)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-4xl sm:text-3xl ${i < setsLeft ? "tru-accent-text" : "text-zinc-800"}`}
+                      className={`text-4xl sm:text-3xl ${i < setsLeft ? "text-emerald-400" : "text-zinc-800"}`}
                     >
                       ●
                     </span>
@@ -347,7 +347,7 @@ export default function Arena() {
                   {[...Array(configGame.maxRounds)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-4xl sm:text-3xl ${i < setsRight ? "tru-accent-text" : "text-zinc-800"}`}
+                      className={`text-4xl sm:text-3xl ${i < setsRight ? "text-emerald-400" : "text-zinc-800"}`}
                     >
                       ●
                     </span>
