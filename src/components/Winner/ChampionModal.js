@@ -1,5 +1,6 @@
 "use client";
 import { colors_from_image } from "@/constants/colors";
+import Link from "next/link";
 import React from "react";
 import Confetti from "react-confetti-boom";
 
@@ -8,12 +9,8 @@ const ChampionModal = ({ winnerName, score, onRestart, configGame, durationLabel
 
   return (
     <>
-    <div className="relative w-full max-w-sm bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.28),transparent_70%)] pointer-events-none landscape:max-w-xl animate-slow-fade overflow-hidden rounded-4xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl">
-      
+    <div className="relative w-full max-w-sm bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.28),transparent_70%)] landscape:max-w-xl animate-slow-fade overflow-hidden rounded-4xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl">
       <div className="absolute inset-x-0 top-0 h-40 pointer-events-none" />
-
-      
-
       <div className="relative p-4 overflow-hidden">
         <div className="landscape:flex landscape:gap-5 landscape:items-center">
 
@@ -75,12 +72,13 @@ const ChampionModal = ({ winnerName, score, onRestart, configGame, durationLabel
               </div>
             </div>
 
-            <button
+            <Link
+              href="/arena"
               onClick={onRestart}
-              className="w-full bg-green-500 hover:bg-green-400 text-black py-3 rounded-xl font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg"
+              className="block w-full bg-green-500 hover:bg-green-400 text-black py-3 rounded-xl font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg text-center"
             >
               Nova Partida
-            </button>
+            </Link>
           </div>
 
         </div>

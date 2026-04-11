@@ -4,24 +4,15 @@ import { useRouter } from "next/navigation";
 import { toggleFullScreen } from "../utils/toggleFullScreen";
 import ConfigModal from "@/components/Menu/ConfigModal";
 import MatchConfigModal from "@/components/InitGame/MatchConfigModal";
-import Confetti from "react-confetti-boom";
-import { colors_from_image } from "@/constants/colors";
 import Pato from "@/components/pato";
 import Link from "next/link";
 import { useGame } from "@/context/GameContext";
 
-const INIT_GAME_COUNTDOWN = 7;
 const DEFAULT_MATCH_CONFIG = {
   teamLeft: "Time 1",
   teamRight: "Time 2",
   maxRounds: 1,
 };
-
-const createFinishModalState = () => ({
-  visible: false,
-  winner: null,
-  countdown: INIT_GAME_COUNTDOWN,
-});
 
 export default function Arena() {
   const router = useRouter();
@@ -30,7 +21,6 @@ export default function Arena() {
     startGame: startMatch,
     addPoints,
     subtractPoint,
-    completeSet,
     finalizeGame,
   } = useGame();
   const [showMaoDeFerro, setShowMaoDeFerro] = useState(false);
@@ -39,9 +29,6 @@ export default function Arena() {
   const [startGame, setStartGame] = useState(
     !currentGame || currentGame.status === "finished",
   );
-
-  const [finishModal, setFinishModal] = useState(createFinishModalState);
-  const timerRef = useRef(null);
   const patoTimeoutRef = useRef(null);
   const [showPato, setShowPato] = useState(false);
   const [patoSide, setPatoSide] = useState("right");
@@ -95,7 +82,6 @@ export default function Arena() {
 
   useEffect(() => {
     return () => {
-      clearTimeout(timerRef.current);
       if (patoTimeoutRef.current) {
         clearTimeout(patoTimeoutRef.current);
       }
@@ -186,38 +172,12 @@ export default function Arena() {
     if (isFinalVictory) {
       finalizeGame(winner);
       setShowMaoDeFerro(false);
-      setFinishModal(createFinishModalState());
       router.replace("/arena/champion");
     } else {
-      setFinishModal({
-        visible: true,
-        winner,
-        countdown: INIT_GAME_COUNTDOWN,
-      });
+      setShowMaoDeFerro(false);
+      router.replace(`/arena/round-finish?winner=${winner}`);
     }
   };
-
-  const cancelFinish = () => {
-    clearTimeout(timerRef.current);
-    setFinishModal(createFinishModalState());
-  };
-
-  // Lógica do Cronômetro do Modal de Finalização
-  useEffect(() => {
-    if (finishModal.visible && finishModal.countdown > 0) {
-      timerRef.current = setTimeout(() => {
-        if (finishModal.countdown === 1) {
-          completeSet(finishModal.winner);
-          setShowMaoDeFerro(false);
-          setFinishModal(createFinishModalState());
-          return;
-        }
-
-        setFinishModal((prev) => ({ ...prev, countdown: prev.countdown - 1 }));
-      }, 1000);
-    }
-    return () => clearTimeout(timerRef.current);
-  }, [completeSet, finishModal.visible, finishModal.countdown, finishModal.winner]);
 
   const handlePerdeTudo = (culpable) => {
     if (!currentGame) return;
@@ -235,7 +195,6 @@ export default function Arena() {
   };
 
   const handleInitGame = () => {
-    clearTimeout(timerRef.current);
     if (patoTimeoutRef.current) {
       clearTimeout(patoTimeoutRef.current);
     }
@@ -245,7 +204,6 @@ export default function Arena() {
     setDisabledPatoSides({ left: false, right: false });
     setShowMaoDeFerro(false);
     setIsProcessing(false);
-    setFinishModal(createFinishModalState());
   };
 
   return (
@@ -258,84 +216,6 @@ export default function Arena() {
       }}
     >
       <div className="fixed inset-0 flex flex-col sm:flex-row items-stretch bg-black/90 text-white font-sans overflow-hidden p-2 select-none">
-        {/* MODAL DE FINALIZAÇÃO */}
-        {finishModal.visible && (
-          <div className="animate-slow-fade absolute inset-0 z-[120] bg-black/70 backdrop-blur-xl flex items-center justify-center p-2 text-center">
-            <div className="max-w-sm w-full bg-zinc-900 border border-zinc-800 p-5 rounded-[2rem] shadow-2xl overflow-y-auto max-h-[98vh] scrollbar-hide">
-              {/* Título menor e com menos margem */}
-              <h2 className="text-zinc-600 font-black text-xs uppercase mb-1 tracking-widest">
-                Fim da Rodada
-              </h2>
-
-              {/* Texto de vitória em linha única e fonte menor */}
-              <div className="text-3xl font-black text-green-500 mb-4 uppercase italic leading-tight break-words">
-                Vitória{" "}
-                {finishModal.winner === "left"
-                  ? configGame?.teamLeft
-                  : configGame?.teamRight}
-                !
-              </div>
-
-              {/* Contador circular reduzido (h-20 -> h-16) */}
-              <div className="relative h-16 w-16 mx-auto mb-5 flex items-center justify-center">
-                <span className="text-2xl font-black text-white">
-                  {finishModal.countdown}
-                </span>
-                <svg
-                  className="absolute inset-0 w-full h-full -rotate-90"
-                  viewBox="0 0 80 80"
-                >
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="36"
-                    stroke="currentColor"
-                    strokeWidth="6"
-                    fill="transparent"
-                    className="text-zinc-800"
-                  />
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="36"
-                    stroke="currentColor"
-                    strokeWidth="6"
-                    fill="transparent"
-                    className="text-green-500"
-                    strokeDasharray="226"
-                    strokeDashoffset={
-                      226 - (226 * finishModal.countdown) / INIT_GAME_COUNTDOWN
-                    }
-                    strokeLinecap="round"
-                    style={{ transition: "stroke-dashoffset 1s linear" }}
-                  />
-                </svg>
-              </div>
-
-              <Confetti mode="boom" shapeSize={15} colors={colors_from_image} />
-
-              {/* --- NOVA ALTERNATIVA 1: Estilo Tecnológico --- */}
-              <div className="bg-zinc-950 border border-zinc-800 py-2.5 px-4 rounded-xl mb-2.5 shadow-inner">
-                <p className="text-zinc-400 text-[11px] font-mono uppercase tracking-tight flex items-center justify-center gap-1.5">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-                  </span>
-                  Iniciando novo jogo automaticamente...
-                </p>
-              </div>
-
-              {/* Botão de cancelar com menos padding vertical */}
-              <button
-                onClick={cancelFinish}
-                className="text-zinc-600 hover:text-zinc-400 text-[11px] font-bold uppercase tracking-widest py-1 transition-colors"
-              >
-                Cancelar (Corrigir Pontos)
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* MODAL MÃO DE FERRO */}
         {showMaoDeFerro && (
           <div className="absolute inset-0 z-[110] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 text-center">
