@@ -5,6 +5,8 @@ import { toggleFullScreen } from "../utils/toggleFullScreen";
 import ConfigModal from "@/components/Menu/ConfigModal";
 import MatchConfigModal from "@/components/InitGame/MatchConfigModal";
 import Pato from "@/components/pato";
+import ArenaScoreSection from "@/components/Arena/ArenaScoreSection";
+import ArenaPointsAside from "@/components/Arena/ArenaPointsAside";
 import Link from "next/link";
 import { useGame } from "@/context/GameContext";
 
@@ -33,6 +35,7 @@ export default function Arena() {
   const [showPato, setShowPato] = useState(false);
   const [patoSide, setPatoSide] = useState("right");
   const [patoLosingTeam, setPatoLosingTeam] = useState("");
+  const [showLeastOne, setShowLeastOne] = useState(false);
   const [disabledPatoSides, setDisabledPatoSides] = useState({
     left: false,
     right: false,
@@ -206,6 +209,11 @@ export default function Arena() {
     setIsProcessing(false);
   };
 
+  const handleSubtractPoint = (side) => {
+    setDisabledPatoSides({ left: false, right: false });
+    subtractPoint(side);
+  };
+
   return (
     <div
       className="fixed inset-0 flex flex-col sm:flex-row items-stretch bg-black text-white font-sans overflow-hidden p-2 select-none"
@@ -253,66 +261,15 @@ export default function Arena() {
         )}
 
         {/* COLUNA ESQUERDA (Superior no Mobile) */}
+        <ArenaPointsAside
+          side="left"
+          buttonVisible={settings.buttonVisible}
+          onAddPoints={handleAddPoints}
+        />
 
-        <aside
-          className={`flex flex-row sm:flex-col ${settings.buttonVisible ? "justify-between" : "justify-end"} w-full sm:w-24 h-24 sm:h-auto gap-2 mt-2 sm:mt-0 text-zinc-400`}
-        >
-          {settings.buttonVisible && (
-            <>
-              <button
-                onClick={() => handleAddPoints("left", 3)}
-                className="flex-1 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center"
-              >
-                <span className="text-[10px] uppercase font-bold">Truco</span>
-                <span className="text-xl font-black text-white">+3</span>
-              </button>
-              {[6, 9, 12].map((v) => (
-                <button
-                  key={v}
-                  onClick={() => handleAddPoints("left", v)}
-                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all font-bold text-lg"
-                >
-                  {v === 12 ? "12" : `+${v}`}
-                </button>
-              ))}
-            </>
-          )}
-          <div className="flex flex-col sm:flex-row gap-2">
-            <button
-              onClick={() => {
-                setDisabledPatoSides({ left: false, right: false });
-                subtractPoint("left");
-              }}
-              className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
-            >
-              -1
-            </button>
-
-            {patoAvailable.left && canLaunchPato("left") && (
-              /* Wrapper relativo para o efeito não quebrar o flex */
-              <div className="relative w-14 sm:w-full h-14">
-                {/* O Ping: Fica exatamente atrás do botão */}
-                <span className="absolute inset-0 rounded-xl bg-purple-500 opacity-75 animate-ping"></span>
-                <button
-                  type="button"
-                  onClick={() => handleLaunchPato("left")}
-                  style={{
-                    backgroundImage: "url(/pato.gif)",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                  /* relative e z-10 para ficar na frente do ping */
-                  className="relative z-10 w-full h-full bg-cyan-900/20 border border-cyan-500 rounded-xl text-cyan-200 font-bold hover:bg-cyan-800/40"
-                ></button>
-              </div>
-            )}
-          </div>
-        </aside>
-
-        {/* CENTRO */}
         <main className="flex-1 flex flex-col px-4 min-h-0">
           <header className="flex justify-between items-start pt-2">
-            <div className="flex gap-1 w-12 sm:w-24">
+            <div className="flex gap-1 w-full">
               <Link
                 href="/"
                 prefetch
@@ -385,7 +342,13 @@ export default function Arena() {
               </div>
             </div>
 
-            <div className="flex gap-1 w-12 sm:w-24 justify-end">
+            <div className="flex gap-1 w-full justify-end">
+              <button
+                onClick={() => setShowLeastOne(!showLeastOne)}
+                className="p-2 text-zinc-500 hover:text-white transition-colors active:scale-90"
+              >
+                -1
+              </button>
               <button
                 onClick={toggleFullScreen}
                 className="p-2 text-zinc-500 hover:text-white transition-colors active:scale-90"
@@ -429,111 +392,28 @@ export default function Arena() {
             </div>
           </header>
 
-          <section className="flex-1 flex flex-col sm:flex-row items-center justify-around relative">
-            <div
-              className="
-                absolute left-0 right-0 top-1/2 -translate-y-1/2 
-                h-[1px] w-full 
-                bg-gradient-to-r from-transparent via-zinc-800 to-transparent
-                sm:left-1/2 sm:right-auto sm:top-0 sm:bottom-0 sm:translate-y-0
-                sm:w-[2px] sm:h-full 
-                sm:bg-gradient-to-b
-              "
-            ></div>
-            <div
-              className="text-center z-10 py-4 sm:py-0 pr-6 w-full"
-              onClick={() => handleAddPoints("left", 1)}
-            >
-              <span className="block text-[12rem] sm:text-[15rem] font-black leading-none tracking-tighter">
-                {String(pointsLeft).padStart(2, "0")}
-              </span>
-              <span className="text-md uppercase tracking-widest text-zinc-200 font-bold">
-                {configGame?.teamLeft}
-              </span>
-            </div>
-
-            <div
-              className="text-center z-10 py-4 sm:py-0 w-full"
-              onClick={() => handleAddPoints("right", 1)}
-            >
-              <span className="block text-[12rem] sm:text-[15rem] font-black leading-none tracking-tighter text-zinc-400">
-                {String(pointsRight).padStart(2, "0")}
-              </span>
-              <span className="text-md uppercase tracking-widest text-zinc-200 font-bold">
-                {configGame?.teamRight}
-              </span>
-            </div>
-          </section>
-
-          <footer className="flex flex-col items-center justify-center">
-            {(pointsLeft === 14 || pointsRight === 14) && (
-              <button
-                onClick={() => handlePerdeTudo()}
-                className="fixed bottom-24 sm:bottom-0 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-4rem)] md:w-auto md:px-6 py-2 bg-red-900/20 border border-red-900/50 rounded-2xl text-white text-sm font-black uppercase animate-pulse"
-              >
-                Perde Tudo
-              </button>
-            )}
-          </footer>
+          <ArenaScoreSection
+            pointsLeft={pointsLeft}
+            pointsRight={pointsRight}
+            teamLeft={configGame?.teamLeft}
+            teamRight={configGame?.teamRight}
+            showLeastOne={showLeastOne}
+            patoAvailable={patoAvailable}
+            canLaunchPato={canLaunchPato}
+            onAddOne={(side) => handleAddPoints(side, 1)}
+            onSubtractLeft={() => handleSubtractPoint("left")}
+            onSubtractRight={() => handleSubtractPoint("right")}
+            onLaunchPato={handleLaunchPato}
+            onPerdeTudo={() => handlePerdeTudo()}
+          />
         </main>
 
         {/* COLUNA DIREITA (Inferior no Mobile) */}
-
-        <aside
-          className={`flex flex-row sm:flex-col ${settings.buttonVisible ? "justify-between" : "justify-end"} w-full sm:w-24 h-24 sm:h-auto gap-2 mt-2 sm:mt-0 text-zinc-400`}
-        >
-          {settings.buttonVisible && (
-            <>
-              <button
-                onClick={() => handleAddPoints("right", 3)}
-                className="flex-1 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center"
-              >
-                <span className="text-[10px] uppercase font-bold">Truco</span>
-                <span className="text-xl font-black text-white">+3</span>
-              </button>
-              {[6, 9, 12].map((v) => (
-                <button
-                  key={v}
-                  onClick={() => handleAddPoints("right", v)}
-                  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all font-bold text-lg"
-                >
-                  {v === 12 ? "12" : `+${v}`}
-                </button>
-              ))}
-            </>
-          )}
-
-          <div className="flex flex-col sm:flex-row gap-2">
-            {patoAvailable.right && canLaunchPato("right") && (
-              /* Wrapper relativo para o efeito não quebrar o flex */
-              <div className="relative w-14 sm:w-full h-14">
-                {/* O Ping: Fica exatamente atrás do botão */}
-                <span className="absolute inset-0 rounded-xl bg-purple-500 opacity-75 animate-ping"></span>
-                <button
-                  type="button"
-                  onClick={() => handleLaunchPato("right")}
-                  style={{
-                    backgroundImage: "url(/pato.gif)",
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                    transform: "scaleX(-1)",
-                  }}
-                  /* relative e z-10 para ficar na frente do ping */
-                  className="relative z-10 w-full h-full bg-cyan-900/20 border border-cyan-500 rounded-xl text-cyan-200 font-bold hover:bg-cyan-800/40"
-                ></button>
-              </div>
-            )}
-            <button
-              onClick={() => {
-                setDisabledPatoSides({ left: false, right: false });
-                subtractPoint("right");
-              }}
-              className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
-            >
-              -1
-            </button>
-          </div>
-        </aside>
+        <ArenaPointsAside
+          side="right"
+          buttonVisible={settings.buttonVisible}
+          onAddPoints={handleAddPoints}
+        />
 
         {showPato && <Pato side={patoSide} losingTeamName={patoLosingTeam} />}
         <ConfigModal
