@@ -1,11 +1,12 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toggleFullScreen } from "../utils/toggleFullScreen";
 import ConfigModal from "@/components/Menu/ConfigModal";
 import MatchConfigModal from "@/components/InitGame/MatchConfigModal";
 import Pato from "@/components/pato";
 import ArenaScoreSection from "@/components/Arena/ArenaScoreSection";
+import ArenaScoreSectionMirrored from "@/components/Arena/ArenaScoreSectionMirrored";
 import ArenaPointsAside from "@/components/Arena/ArenaPointsAside";
 import Link from "next/link";
 import { useGame } from "@/context/GameContext";
@@ -16,7 +17,7 @@ const DEFAULT_MATCH_CONFIG = {
   maxRounds: 1,
 };
 
-export default function Arena() {
+function ArenaContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fromHome = searchParams.get("from") === "home";
@@ -38,6 +39,7 @@ export default function Arena() {
   const [showPato, setShowPato] = useState(false);
   const [patoSide, setPatoSide] = useState("right");
   const [patoLosingTeam, setPatoLosingTeam] = useState("");
+  const [useMirroredScore, setUseMirroredScore] = useState(false);
   const [showLeastOne, setShowLeastOne] = useState(false);
   const [disabledPatoSides, setDisabledPatoSides] = useState({
     left: false,
@@ -62,6 +64,14 @@ export default function Arena() {
     teamRight: rightTeam?.name || DEFAULT_MATCH_CONFIG.teamRight,
     maxRounds: currentGame?.maxRounds || DEFAULT_MATCH_CONFIG.maxRounds,
   };
+  const roundsDotSizeClass =
+    configGame.maxRounds >= 7
+      ? "text-2xl sm:text-xl"
+      : configGame.maxRounds >= 5
+        ? "text-3xl sm:text-2xl"
+        : "text-4xl sm:text-3xl";
+  const roundsGapClass = configGame.maxRounds >= 7 ? "gap-2 sm:gap-3" : "gap-4 sm:gap-6";
+  const roundsDotGapClass = configGame.maxRounds >= 7 ? "gap-0.5" : "gap-1";
   const patoAvailable = {
     left:
       !!currentGame &&
@@ -72,6 +82,23 @@ export default function Arena() {
       pointsRight - pointsLeft >= 6 &&
       !disabledPatoSides.right,
   };
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 1024px) and (orientation: portrait)");
+    const applyOrientation = (event) => {
+      setUseMirroredScore(event.matches);
+    };
+
+    setUseMirroredScore(mediaQuery.matches);
+
+    if (typeof mediaQuery.addEventListener === "function") {
+      mediaQuery.addEventListener("change", applyOrientation);
+      return () => mediaQuery.removeEventListener("change", applyOrientation);
+    }
+
+    mediaQuery.addListener(applyOrientation);
+    return () => mediaQuery.removeListener(applyOrientation);
+  }, []);
 
   useEffect(() => {
     const loadSettings = () => {
@@ -279,11 +306,17 @@ export default function Arena() {
           side="left"
           buttonVisible={settings.buttonVisible}
           onAddPoints={handleAddPoints}
+          invertAxis={useMirroredScore}
         />
 
-        <main className="flex-1 flex flex-col px-4 min-h-0">
-          <header className="flex justify-between items-start pt-2">
-            <div className="flex gap-1 w-full">
+        <main className="relative flex-1 flex flex-col px-4 min-h-0">
+          <header
+            className={useMirroredScore
+              ? "absolute top-1/2 left-0 right-0 -translate-y-1/2 z-40 flex items-center justify-between rounded-2xl bg-black/20 backdrop-blur-md shadow-xl pointer-events-none"
+              : "flex justify-between items-start pt-2"
+            }
+          >
+            <div className={`flex gap-1 w-full ${useMirroredScore ? "pointer-events-auto" : ""}`}>
               <Link
                 href="/"
                 prefetch
@@ -328,26 +361,28 @@ export default function Arena() {
             </div>
 
             <div className="flex flex-col items-center gap-1">
+              {!useMirroredScore &&
               <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">
                 Rodadas
               </span>
-              <div className="flex items-center gap-4 sm:gap-6">
-                <div className="flex flex-row-reverse gap-1">
+              }
+              <div className={`flex items-center ${roundsGapClass}`}>
+                <div className={`flex flex-row-reverse ${roundsDotGapClass}`}>
                   {[...Array(configGame.maxRounds)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-4xl sm:text-3xl ${i < setsLeft ? "text-emerald-400" : "text-zinc-800"}`}
+                      className={`${roundsDotSizeClass} ${i < setsLeft ? "text-emerald-400" : "text-zinc-800"}`}
                     >
                       ●
                     </span>
                   ))}
                 </div>
                 <div className="h-4 w-px bg-zinc-800"></div>
-                <div className="flex gap-1">
+                <div className={`flex ${roundsDotGapClass}`}>
                   {[...Array(configGame.maxRounds)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-4xl sm:text-3xl ${i < setsRight ? "text-emerald-400" : "text-zinc-800"}`}
+                      className={`${roundsDotSizeClass} ${i < setsRight ? "text-emerald-400" : "text-zinc-800"}`}
                     >
                       ●
                     </span>
@@ -356,7 +391,7 @@ export default function Arena() {
               </div>
             </div>
 
-            <div className="flex gap-1 w-full justify-end">
+            <div className={`flex gap-1 w-full justify-end ${useMirroredScore ? "pointer-events-auto" : ""}`}>
               <button
                 onClick={() => setShowLeastOne(!showLeastOne)}
                 className="p-2 transition-colors active:scale-90 tru-btn-icon"
@@ -406,20 +441,37 @@ export default function Arena() {
             </div>
           </header>
 
-          <ArenaScoreSection
-            pointsLeft={pointsLeft}
-            pointsRight={pointsRight}
-            teamLeft={configGame?.teamLeft}
-            teamRight={configGame?.teamRight}
-            showLeastOne={showLeastOne}
-            patoAvailable={patoAvailable}
-            canLaunchPato={canLaunchPato}
-            onAddOne={(side) => handleAddPoints(side, 1)}
-            onSubtractLeft={() => handleSubtractPoint("left")}
-            onSubtractRight={() => handleSubtractPoint("right")}
-            onLaunchPato={handleLaunchPato}
-            onPerdeTudo={() => handlePerdeTudo()}
-          />
+          {useMirroredScore ? (
+            <ArenaScoreSectionMirrored
+              pointsLeft={pointsLeft}
+              pointsRight={pointsRight}
+              teamLeft={configGame?.teamLeft}
+              teamRight={configGame?.teamRight}
+              showLeastOne={showLeastOne}
+              patoAvailable={patoAvailable}
+              canLaunchPato={canLaunchPato}
+              onAddOne={(side) => handleAddPoints(side, 1)}
+              onSubtractLeft={() => handleSubtractPoint("left")}
+              onSubtractRight={() => handleSubtractPoint("right")}
+              onLaunchPato={handleLaunchPato}
+              onPerdeTudo={() => handlePerdeTudo()}
+            />
+          ) : (
+            <ArenaScoreSection
+              pointsLeft={pointsLeft}
+              pointsRight={pointsRight}
+              teamLeft={configGame?.teamLeft}
+              teamRight={configGame?.teamRight}
+              showLeastOne={showLeastOne}
+              patoAvailable={patoAvailable}
+              canLaunchPato={canLaunchPato}
+              onAddOne={(side) => handleAddPoints(side, 1)}
+              onSubtractLeft={() => handleSubtractPoint("left")}
+              onSubtractRight={() => handleSubtractPoint("right")}
+              onLaunchPato={handleLaunchPato}
+              onPerdeTudo={() => handlePerdeTudo()}
+            />
+          )}
         </main>
 
         {/* COLUNA DIREITA (Inferior no Mobile) */}
@@ -427,6 +479,7 @@ export default function Arena() {
           side="right"
           buttonVisible={settings.buttonVisible}
           onAddPoints={handleAddPoints}
+          invertAxis={false}
         />
 
         {showPato && <Pato side={patoSide} losingTeamName={patoLosingTeam} />}
@@ -450,5 +503,13 @@ export default function Arena() {
         />
       </div>
     </div>
+  );
+}
+
+export default function Arena() {
+  return (
+    <Suspense>
+      <ArenaContent />
+    </Suspense>
   );
 }

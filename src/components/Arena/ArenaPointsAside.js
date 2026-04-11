@@ -1,9 +1,14 @@
 import React from "react";
 
-export default function ArenaPointsAside({ side, buttonVisible, onAddPoints }) {
+export default function ArenaPointsAside({
+  side,
+  buttonVisible,
+  onAddPoints,
+  invertAxis = false,
+}) {
   return (
     <aside
-      className={`flex flex-row sm:flex-col ${buttonVisible ? "justify-between" : "justify-end"} w-full sm:w-24 h-24 sm:h-auto gap-2 mt-2 sm:mt-0 text-zinc-400`}
+      className={`flex flex-row sm:flex-col ${buttonVisible ? "justify-between" : "justify-end"} w-full sm:w-24 h-24 sm:h-auto gap-2 mt-2 sm:mt-0 text-zinc-400 ${invertAxis ? "rotate-180" : ""}`}
     >
       {buttonVisible && (
         <>
