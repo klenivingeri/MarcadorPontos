@@ -9,7 +9,7 @@ export default function Home() {
   // 4. Função que você passa para o onClose do Modal
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans selection:bg-green-500/30">
+    <div className="min-h-screen tru-page-bg tru-page-text font-sans">
       {/* SEÇÃO PRINCIPAL (FULL SCREEN) */}
       <section className="h-screen w-full flex flex-col items-center justify-between p-6 relative overflow-hidden">
         {/* HEADER SUPERIOR */}
@@ -38,7 +38,7 @@ export default function Home() {
 
           <button
             onClick={() => setShowConfig(true)}
-            className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90"
+            className="p-4 rounded-2xl transition-all active:scale-90 tru-btn-ghost"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +63,7 @@ export default function Home() {
           <div className="relative">
             <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter uppercase leading-none">
               Tru
-              <span className="text-green-500 drop-shadow-[0_0_15px_rgba(34,197,94,0.4)]">
+              <span className="tru-accent-text" style={{ textShadow: "0 0 15px color-mix(in srgb, var(--tru-default) 40%, transparent)" }}>
                 Kando
               </span>
             </h1>
@@ -73,7 +73,7 @@ export default function Home() {
           </div>
 
           {/* A Breve Descrição */}
-          <p className="max-w-[280px] md:max-w-md text-zinc-400 text-sm md:text-base font-medium leading-relaxed uppercase tracking-tight">
+          <p className="max-w-70 md:max-w-md text-zinc-400 text-sm md:text-base font-medium leading-relaxed uppercase tracking-tight">
             O marcador definitivo para quem busca{" "}
             <span className="text-zinc-200">performance</span> e{" "}
             <span className="text-zinc-200">imersão</span> total em cada rodada.
@@ -83,10 +83,11 @@ export default function Home() {
           <Link
             href="/arena"
             onClick={() => toggleFullScreen() }
-            className="group relative px-12 py-6 bg-white text-black rounded-[2rem] font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all shadow-[0_0_40px_rgba(34,197,94,0.2)]"
+            className="group relative px-12 py-6 bg-white text-black rounded-4xl font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all"
+            style={{ boxShadow: "0 0 40px color-mix(in srgb, var(--tru-default) 20%, transparent)" }}
           >
             <span className="relative z-10">Iniciar Partida</span>
-            <div className="absolute inset-0 bg-green-500 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            <div className="absolute inset-0 tru-accent-bg rounded-4xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
           </Link>
         </div>
 
@@ -116,7 +117,10 @@ export default function Home() {
 
         {/* FUNDO DECORATIVO */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full -z-10 opacity-20 pointer-events-none">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-green-900/20 via-transparent to-transparent"></div>
+          <div
+            className="absolute inset-0"
+            style={{ backgroundImage: "radial-gradient(circle at center, color-mix(in srgb, var(--tru-default) 25%, transparent), transparent 60%)" }}
+          ></div>
         </div>
       </section>
 
@@ -128,7 +132,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="p-8 bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem]">
-            <div className="text-green-500 text-3xl font-black mb-4">01</div>
+            <div className="tru-accent-text text-3xl font-black mb-4">01</div>
             <h3 className="text-xl font-bold mb-2 uppercase">
               Pontuação Rápida
             </h3>
@@ -143,7 +147,7 @@ export default function Home() {
           </div>
 
           <div className="p-8 bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem]">
-            <div className="text-green-500 text-3xl font-black mb-4">02</div>
+            <div className="tru-accent-text text-3xl font-black mb-4">02</div>
             <h3 className="text-xl font-bold mb-2 uppercase text-zinc-100">
               Sets e Vitória
             </h3>
@@ -158,23 +162,23 @@ export default function Home() {
           </div>
 
           <div className="p-8 bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem]">
-            <div className="text-green-500 text-3xl font-black mb-4">03</div>
+            <div className="tru-accent-text text-3xl font-black mb-4">03</div>
             <h3 className="text-xl font-bold mb-2 uppercase">Mão de Ferro</h3>
             <p className="text-zinc-500 leading-relaxed">
               Ao atingir <strong className="text-zinc-300">14 pontos</strong>, o
-              botão <strong className="text-red-500">"Perde Tudo"</strong> é
+              botão <strong className="tru-danger-text">"Perde Tudo"</strong> é
               ativado. Se houver Truco nesta fase, use-o para encerrar a rodada.
               Caso ambos os times cheguem a{" "}
               <strong className="text-zinc-300">14x14</strong>, uma tela
               especial de{" "}
-              <strong className="text-green-500">"Mão de Ferro"</strong> surgirá
+              <strong className="tru-accent-text">"Mão de Ferro"</strong> surgirá
               quando botão for apertado para definir o perdedor imediatamente.
             </p>
           </div>
 
-          <div className="p-5 bg-zinc-900/40 border border-zinc-800 rounded-[2rem] max-w-2xl mx-auto">
+          <div className="p-5 bg-zinc-900/40 border border-zinc-800 rounded-4xl max-w-2xl mx-auto">
             <div className="flex items-center gap-4 mb-3">
-              <div className="text-green-500 text-2xl font-black">04</div>
+              <div className="tru-accent-text text-2xl font-black">04</div>
               <h3 className="text-lg font-bold uppercase tracking-tight text-zinc-200">
                 Instalação & Full Screen
               </h3>
@@ -183,14 +187,14 @@ export default function Home() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm leading-snug">
               {/* Coluna Android */}
               <div className="bg-zinc-950/50 p-3 rounded-xl border border-zinc-800/50">
-                <span className="text-green-500 font-bold block mb-1 uppercase text-[10px]">
+                <span className="tru-accent-text font-bold block mb-1 uppercase text-[10px]">
                   Android (Chrome)
                 </span>
                 <p className="text-zinc-400">
                   Toque nos{" "}
                   <strong className="text-zinc-200">três pontos (⋮)</strong> e
                   selecione{" "}
-                  <strong className="text-green-500">
+                  <strong className="tru-accent-text">
                     "Instalar aplicativo"
                   </strong>{" "}
                   ou "Adicionar à tela inicial".
@@ -199,14 +203,14 @@ export default function Home() {
 
               {/* Coluna iPhone */}
               <div className="bg-zinc-950/50 p-3 rounded-xl border border-zinc-800/50">
-                <span className="text-blue-400 font-bold block mb-1 uppercase text-[10px]">
+                <span className="tru-progress-text font-bold block mb-1 uppercase text-[10px]">
                   iPhone (Safari)
                 </span>
                 <p className="text-zinc-400">
                   Toque no ícone de{" "}
                   <strong className="text-zinc-200">Compartilhar (↑)</strong> e
                   escolha{" "}
-                  <strong className="text-green-500">
+                  <strong className="tru-accent-text">
                     "Adicionar à Tela de Início"
                   </strong>
                   .
@@ -218,13 +222,13 @@ export default function Home() {
               <div className="text-center px-2">
                 <p className="text-zinc-500 text-[11px] leading-relaxed">
                   Para uma melhor experiência{" "}
-                  <strong className="text-green-500 uppercase italic text-[11px]">
+                  <strong className="tru-accent-text uppercase italic text-[11px]">
                     gire a aparelho
                   </strong>{" "}
                   na tela de pontos. No navegador? Use o{" "}
                   <strong className="text-zinc-300 uppercase italic inline-flex items-center gap-1">
                     ícone
-                    <span className="inline-flex items-center justify-center w-6 h-6 bg-zinc-800/50 rounded-md animate-pulse text-green-500 align-middle">
+                    <span className="inline-flex items-center justify-center w-6 h-6 bg-zinc-800/50 rounded-md animate-pulse tru-accent-text align-middle">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="14"
@@ -249,11 +253,11 @@ export default function Home() {
           </div>
 
           <div className="p-8 bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem]">
-            <div className="text-green-500 text-3xl font-black mb-4">05</div>
+            <div className="tru-accent-text text-3xl font-black mb-4">05</div>
             <h3 className="text-xl font-bold mb-2 uppercase">Histórico</h3>
             <p className="text-zinc-500 leading-relaxed">
               Acesse o registro completo de todas as rodadas para conferir{" "}
-              <strong className="text-green-500">vitórias, derrotas</strong> e
+              <strong className="tru-accent-text">vitórias, derrotas</strong> e
               as <strong className="text-zinc-300">datas exatas</strong> de cada
               confronto. Utilize os{" "}
               <strong className="text-zinc-300">filtros inteligentes</strong>{" "}
@@ -263,13 +267,13 @@ export default function Home() {
           </div>
 
           <div className="p-8 bg-zinc-900/40 border border-zinc-800 rounded-[2.5rem]">
-            <div className="text-green-500 text-3xl font-black mb-4">06</div>
+            <div className="tru-accent-text text-3xl font-black mb-4">06</div>
             <h3 className="text-xl font-bold mb-2 uppercase">Identificador</h3>
             <p className="text-zinc-500 leading-relaxed">
               Nas <strong className="text-zinc-300">Configurações</strong>, você
               pode definir o nome ou apelido que usará nas partidas. Ao fazer
               isso, partidas com seu nome ganham{" "}
-              <strong className="text-green-500">
+              <strong className="tru-accent-text">
                 destaque visual no histórico
               </strong>
               , transformando vitórias comuns em marcos da sua{" "}

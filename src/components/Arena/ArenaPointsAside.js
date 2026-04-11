@@ -9,16 +9,16 @@ export default function ArenaPointsAside({ side, buttonVisible, onAddPoints }) {
         <>
           <button
             onClick={() => onAddPoints(side, 3)}
-            className="flex-1 py-4 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all flex flex-col items-center justify-center"
+            className="flex-1 py-4 rounded-2xl active:scale-95 transition-all flex flex-col items-center justify-center tru-btn-ghost"
           >
             <span className="text-[10px] uppercase font-bold">Truco</span>
-            <span className="text-xl font-black text-white">+3</span>
+            <span className="text-xl font-black tru-page-text">+3</span>
           </button>
           {[6, 9, 12].map((value) => (
             <button
               key={value}
               onClick={() => onAddPoints(side, value)}
-              className="flex-1 bg-zinc-900 border border-zinc-800 rounded-2xl active:bg-green-600 active:scale-95 transition-all font-bold text-lg"
+              className="flex-1 rounded-2xl active:scale-95 transition-all font-bold text-lg tru-btn-ghost"
             >
               {value === 12 ? "12" : `+${value}`}
             </button>

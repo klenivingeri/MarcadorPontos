@@ -105,14 +105,14 @@ function RoundFinishContent() {
   return (
     <>
     <div
-      className="min-h-screen animate-slow-fade bg-black text-white"
+      className="min-h-screen animate-slow-fade tru-page-bg tru-page-text"
       style={{
-        backgroundImage: settings.bgUrl ? `url(${settings.bgUrl})` : "none",
+        backgroundImage: settings.bgUrl ? `url("${settings.bgUrl}")` : "none",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="relative min-h-screen flex items-center justify-center bg-black/85 px-4 py-5 text-center">
+      <div className="relative min-h-screen flex items-center justify-center tru-overlay-bg px-4 py-5 text-center">
         <Link
           href="/"
           className="fixed top-5 left-4 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300 transition-colors hover:text-white z-10"
@@ -135,7 +135,7 @@ function RoundFinishContent() {
               Fim da Rodada
             </h2>
 
-            <div className="text-3xl sm:text-4xl font-black text-green-500 mb-5 uppercase italic leading-tight wrap-break-word">
+            <div className="text-3xl sm:text-4xl font-black tru-accent-text mb-5 uppercase italic leading-tight wrap-break-word">
               Vitória {winnerName}!
             </div>
 
@@ -161,7 +161,7 @@ function RoundFinishContent() {
                   stroke="currentColor"
                   strokeWidth="6"
                   fill="transparent"
-                  className="text-green-500"
+                  className="tru-accent-text"
                   strokeDasharray="226"
                   strokeDashoffset={progress}
                   strokeLinecap="round"
@@ -173,8 +173,8 @@ function RoundFinishContent() {
             <div className="bg-zinc-950/80 border border-zinc-800 py-3 px-4 rounded-xl mb-3 shadow-inner">
               <p className="text-zinc-400 text-[11px] font-mono uppercase tracking-tight flex items-center justify-center gap-1.5">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full tru-progress-bg opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 tru-accent-bg"></span>
                 </span>
                 Iniciando novo jogo automaticamente...
               </p>
@@ -182,7 +182,7 @@ function RoundFinishContent() {
 
             <button
               onClick={cancelFinish}
-              className="text-zinc-500 hover:text-zinc-300 text-[11px] font-bold uppercase tracking-widest py-1 transition-colors"
+              className="text-[11px] font-bold uppercase tracking-widest py-1 px-3 rounded-xl transition-colors tru-btn-ghost"
             >
               Cancelar (Corrigir Pontos)
             </button>

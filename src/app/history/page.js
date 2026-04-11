@@ -127,7 +127,7 @@ const HistoryPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-zinc-100 p-6 pb-24 font-sans">
+    <div className="min-h-screen tru-page-bg tru-page-text p-6 pb-24 font-sans">
       <header className="max-w-4xl mx-auto mb-10">
         <div className="flex items-center justify-between mb-4">
           <Link
@@ -149,7 +149,7 @@ const HistoryPage = () => {
             </svg>
           </Link>
 
-          <h1 className="text-4xl font-black italic tracking-tighter text-green-500 uppercase">
+          <h1 className="text-4xl font-black italic tracking-tighter tru-accent-text uppercase">
             Historico
           </h1>
           <button
@@ -161,7 +161,7 @@ const HistoryPage = () => {
               localStorage.setItem("game_history", JSON.stringify([]));
               setHistory([]);
             }}
-            className="text-[10px] font-bold text-zinc-700 hover:text-red-500 uppercase tracking-widest transition-all"
+            className="text-[10px] font-bold uppercase tracking-widest transition-all tru-btn-ghost px-3 py-2 rounded-xl"
           >
             Limpar Tudo
           </button>
@@ -177,32 +177,32 @@ const HistoryPage = () => {
             placeholder="EX: ERICK..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#141414] border border-zinc-800 rounded-2xl px-5 py-5 text-xs font-bold uppercase tracking-widest focus:ring-1 focus:ring-green-500 outline-none text-green-400 placeholder:text-zinc-800 transition-all"
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-2xl px-5 py-5 text-xs font-bold uppercase tracking-widest focus:ring-1 focus:ring-(--tru-focus) outline-none tru-progress-text placeholder:text-zinc-800 transition-all"
           />
         </div>
 
         {/* Dashboard de Stats - Abaixo da Busca */}
         <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="bg-[#141414] p-4 rounded-[2rem] border-l-4 border-green-500 shadow-2xl relative overflow-hidden">
+          <div className="bg-zinc-900 p-4 rounded-4xl border-l-4 tru-accent-border shadow-2xl relative overflow-hidden">
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1">
               Win Streak {activeTarget && `• ${activeTarget}`}
             </span>
             <div className="text-6xl font-black italic text-white tracking-tighter">
               {String(stats.wins).padStart(2, "0")}
             </div>
-            <div className="absolute -right-4 -bottom-4 text-green-500/5 text-8xl font-black italic uppercase">
+            <div className="absolute -right-4 -bottom-4 tru-accent-text text-8xl font-black italic uppercase opacity-5">
               Win
             </div>
           </div>
 
-          <div className="bg-[#141414] p-4 rounded-[2rem] border-l-4 border-red-600 shadow-2xl relative overflow-hidden">
+          <div className="bg-zinc-900 p-4 rounded-4xl border-l-4 border-(--tru-danger) shadow-2xl relative overflow-hidden">
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest block mb-1">
               Total Losses {activeTarget && `• ${activeTarget}`}
             </span>
             <div className="text-6xl font-black italic text-white tracking-tighter">
               {String(stats.losses).padStart(2, "0")}
             </div>
-            <div className="absolute -right-4 -bottom-4 text-red-600/5 text-8xl font-black italic uppercase">
+            <div className="absolute -right-4 -bottom-4 tru-danger-text text-8xl font-black italic uppercase opacity-5">
               Loss
             </div>
           </div>
@@ -239,12 +239,12 @@ const HistoryPage = () => {
 
             if (isTargetInMatch) {
               if (isTargetWinner) {
-                borderColor = "border-green-500";
-                labelColor = "bg-green-500 text-black";
+                borderColor = "tru-accent-border";
+                labelColor = "tru-accent-bg tru-on-accent";
                 statusLabel = "WINNER";
               } else {
-                borderColor = "border-red-600";
-                labelColor = "bg-red-600 text-white";
+                borderColor = "border-[var(--tru-danger)]";
+                labelColor = "bg-[var(--tru-danger)] text-white";
                 statusLabel = "DEFEAT";
               }
             }
@@ -252,11 +252,11 @@ const HistoryPage = () => {
             return (
               <div
                 key={game.id}
-                className={`relative bg-[#111111] border-l-[6px] ${borderColor} rounded-[2.5rem] p-6 transition-all hover:bg-[#141414] group`}
+                className={`relative bg-zinc-950 border-l-[6px] ${borderColor} rounded-[2.5rem] p-6 transition-all hover:bg-zinc-900 group`}
               >
                 <button
                   onClick={() => deleteEntry(game.id)}
-                  className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 text-zinc-800 hover:text-red-500 font-bold text-2xl transition-all"
+                  className="absolute top-6 right-6 opacity-0 group-hover:opacity-100 font-bold text-2xl transition-all tru-btn-icon"
                 >
                   ×
                 </button>
@@ -292,8 +292,8 @@ const HistoryPage = () => {
                       <span
                         className={`text-6xl font-black italic ${
                           Number(game.score.left) > Number(game.score.right)
-                            ? "text-green-500"
-                            : "text-red-600"
+                            ? "tru-accent-text"
+                            : "tru-danger-text"
                         }`}
                       >
                         {game.score.left}
@@ -307,8 +307,8 @@ const HistoryPage = () => {
                       <span
                         className={`text-6xl font-black italic ${
                           Number(game.score.right) > Number(game.score.left)
-                            ? "text-green-500"
-                            : "text-red-600"
+                            ? "tru-accent-text"
+                            : "tru-danger-text"
                         }`}
                       >
                         {game.score.right}

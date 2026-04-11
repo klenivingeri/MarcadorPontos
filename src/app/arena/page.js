@@ -216,19 +216,19 @@ export default function Arena() {
 
   return (
     <div
-      className="fixed inset-0 flex flex-col sm:flex-row items-stretch bg-black text-white font-sans overflow-hidden p-2 select-none"
+      className="fixed inset-0 flex flex-col sm:flex-row items-stretch tru-page-bg tru-page-text font-sans overflow-hidden p-2 select-none"
       style={{
-        backgroundImage: settings.bgUrl ? `url(${settings.bgUrl})` : "none",
+        backgroundImage: settings.bgUrl ? `url("${settings.bgUrl}")` : "none",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="fixed inset-0 flex flex-col sm:flex-row items-stretch bg-black/90 text-white font-sans overflow-hidden p-2 select-none">
+      <div className="fixed inset-0 flex flex-col sm:flex-row items-stretch tru-overlay-bg tru-page-text font-sans overflow-hidden p-2 select-none">
         {/* MODAL MÃO DE FERRO */}
         {showMaoDeFerro && (
-          <div className="absolute inset-0 z-[110] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 text-center">
+          <div className="absolute inset-0 z-110 tru-overlay-bg backdrop-blur-md flex items-center justify-center p-4 text-center">
             <div className="w-full max-w-lg">
-              <h2 className="text-red-600 font-black text-3xl uppercase mb-2">
+              <h2 className="tru-danger-text font-black text-3xl uppercase mb-2">
                 Mão de Ferro
               </h2>
               <p className="text-zinc-400 text-sm mb-8 font-bold">
@@ -238,20 +238,20 @@ export default function Arena() {
                 <div className="flex w-full gap-4 justify-center">
                   <button
                     onClick={() => handlePerdeTudo("left")}
-                    className="flex-1 bg-zinc-900 border border-zinc-800 py-8 rounded-2xl active:bg-red-600 transition-colors font-black text-sm sm:text-base"
+                    className="flex-1 py-8 rounded-2xl transition-colors font-black text-sm sm:text-base tru-danger-soft tru-danger-active"
                   >
                     {configGame?.teamLeft} GRITOU
                   </button>
                   <button
                     onClick={() => handlePerdeTudo("right")}
-                    className="flex-1 bg-zinc-900 border border-zinc-800 py-8 rounded-2xl active:bg-red-600 transition-colors font-black text-sm sm:text-base"
+                    className="flex-1 py-8 rounded-2xl transition-colors font-black text-sm sm:text-base tru-danger-soft tru-danger-active"
                   >
                     {configGame?.teamRight} GRITOU
                   </button>
                 </div>
                 <button
                   onClick={() => setShowMaoDeFerro(false)}
-                  className="mt-4 px-8 py-2 text-[10px] text-zinc-600 uppercase font-bold hover:text-zinc-400 transition-colors"
+                  className="mt-4 px-8 py-2 text-[10px] uppercase font-bold transition-colors tru-btn-ghost"
                 >
                   Cancelar
                 </button>
@@ -273,7 +273,7 @@ export default function Arena() {
               <Link
                 href="/"
                 prefetch
-                className="p-2 text-zinc-500 hover:text-white transition-colors"
+                className="p-2 transition-colors tru-btn-icon"
                 title="Voltar"
               >
                 <svg
@@ -294,7 +294,7 @@ export default function Arena() {
                 onClick={() => {
                   setStartGame(true);
                 }}
-                className="p-2 text-zinc-500 hover:text-white"
+                className="p-2 transition-colors tru-btn-icon"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -322,18 +322,18 @@ export default function Arena() {
                   {[...Array(configGame.maxRounds)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-4xl sm:text-3xl ${i < setsLeft ? "text-green-500" : "text-zinc-800"}`}
+                      className={`text-4xl sm:text-3xl ${i < setsLeft ? "tru-accent-text" : "text-zinc-800"}`}
                     >
                       ●
                     </span>
                   ))}
                 </div>
-                <div className="h-4 w-[1px] bg-zinc-800"></div>
+                <div className="h-4 w-px bg-zinc-800"></div>
                 <div className="flex gap-1">
                   {[...Array(configGame.maxRounds)].map((_, i) => (
                     <span
                       key={i}
-                      className={`text-4xl sm:text-3xl ${i < setsRight ? "text-green-500" : "text-zinc-800"}`}
+                      className={`text-4xl sm:text-3xl ${i < setsRight ? "tru-accent-text" : "text-zinc-800"}`}
                     >
                       ●
                     </span>
@@ -345,13 +345,13 @@ export default function Arena() {
             <div className="flex gap-1 w-full justify-end">
               <button
                 onClick={() => setShowLeastOne(!showLeastOne)}
-                className="p-2 text-zinc-500 hover:text-white transition-colors active:scale-90"
+                className="p-2 transition-colors active:scale-90 tru-btn-icon"
               >
                 -1
               </button>
               <button
                 onClick={toggleFullScreen}
-                className="p-2 text-zinc-500 hover:text-white transition-colors active:scale-90"
+                className="p-2 transition-colors active:scale-90 tru-btn-icon"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -372,7 +372,7 @@ export default function Arena() {
               </button>
               <button
                 onClick={() => setShowConfig(true)}
-                className="p-2 text-zinc-500 hover:text-white transition-colors"
+                className="p-2 transition-colors tru-btn-icon"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

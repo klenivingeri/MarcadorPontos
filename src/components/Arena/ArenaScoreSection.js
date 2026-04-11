@@ -19,11 +19,11 @@ export default function ArenaScoreSection({
       <div
         className="
           absolute left-0 right-0 top-1/2 -translate-y-1/2
-          h-[1px] w-full
-          bg-gradient-to-r from-transparent via-zinc-800 to-transparent
+          h-px w-full
+          bg-linear-to-r from-transparent via-zinc-800 to-transparent
           sm:left-1/2 sm:right-auto sm:top-0 sm:bottom-0 sm:translate-y-0
-          sm:w-[2px] sm:h-full
-          sm:bg-gradient-to-b
+          sm:w-0.5 sm:h-full
+          sm:bg-linear-to-b
         "
       ></div>
       <div
@@ -34,7 +34,7 @@ export default function ArenaScoreSection({
           <span className="block text-[12rem] sm:text-[15rem] font-black leading-none tracking-tighter">
             {String(pointsLeft).padStart(2)}
           </span>
-          <span className="text-md uppercase tracking-widest text-zinc-200 font-bold">
+          <span className="text-md uppercase tracking-widest tru-muted-text font-bold">
             {teamLeft}
           </span>
         </div>
@@ -45,7 +45,7 @@ export default function ArenaScoreSection({
                 event.stopPropagation();
                 onSubtractLeft();
               }}
-              className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
+              className="w-14 sm:w-full h-full sm:h-14 border rounded-xl font-bold transition-all tru-danger-soft tru-danger-active"
             >
               -1
             </button>
@@ -53,7 +53,7 @@ export default function ArenaScoreSection({
 
           {patoAvailable.left && canLaunchPato("left") && (
             <div className="relative w-14 sm:w-full h-14">
-              <span className="absolute inset-0 rounded-xl bg-purple-500 opacity-75 animate-ping"></span>
+              <span className="absolute inset-0 rounded-xl tru-progress-bg opacity-75 animate-ping"></span>
               <button
                 type="button"
                 onClick={(event) => {
@@ -64,8 +64,11 @@ export default function ArenaScoreSection({
                   backgroundImage: "url(/pato.gif)",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
+                  backgroundColor: "color-mix(in srgb, var(--tru-progress) 18%, transparent)",
+                  borderColor: "var(--tru-progress)",
                 }}
-                className="relative z-10 w-full h-full bg-cyan-900/20 border border-cyan-500 rounded-xl text-cyan-200 font-bold hover:bg-cyan-800/40"
+                className="relative z-10 w-full h-full rounded-xl font-bold border"
+                title="Pato"
               ></button>
             </div>
           )}
@@ -77,10 +80,10 @@ export default function ArenaScoreSection({
         onClick={() => onAddOne("right")}
       >
         <div>
-          <span className="block text-[12rem] sm:text-[15rem] font-black leading-none tracking-tighter text-zinc-400">
+          <span className="block text-[12rem] sm:text-[15rem] font-black leading-none tracking-tighter">
             {String(pointsRight).padStart(2)}
           </span>
-          <span className="text-md uppercase tracking-widest text-zinc-200 font-bold">
+          <span className="text-md uppercase tracking-widest tru-muted-text font-bold">
             {teamRight}
           </span>
         </div>
@@ -88,7 +91,7 @@ export default function ArenaScoreSection({
         <div className="absolute right-0 bottom-0 sm:w-24 h-24 w-14 sm:h-14 flex flex-col sm:flex-row gap-2">
           {patoAvailable.right && canLaunchPato("right") && (
             <div className="relative w-14 sm:w-full h-14">
-              <span className="absolute inset-0 rounded-xl bg-purple-500 opacity-75 animate-ping"></span>
+              <span className="absolute inset-0 rounded-xl tru-progress-bg opacity-75 animate-ping"></span>
               <button
                 type="button"
                 onClick={(event) => {
@@ -100,8 +103,11 @@ export default function ArenaScoreSection({
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   transform: "scaleX(-1)",
+                  backgroundColor: "color-mix(in srgb, var(--tru-progress) 18%, transparent)",
+                  borderColor: "var(--tru-progress)",
                 }}
-                className="relative z-10 w-full h-full bg-cyan-900/20 border border-cyan-500 rounded-xl text-cyan-200 font-bold hover:bg-cyan-800/40"
+                className="relative z-10 w-full h-full rounded-xl font-bold border"
+                title="Pato"
               ></button>
             </div>
           )}
@@ -111,7 +117,7 @@ export default function ArenaScoreSection({
                 event.stopPropagation();
                 onSubtractRight();
               }}
-              className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
+              className="w-14 sm:w-full h-full sm:h-14 border rounded-xl font-bold transition-all tru-danger-soft tru-danger-active"
             >
               -1
             </button>
@@ -122,7 +128,7 @@ export default function ArenaScoreSection({
       {(pointsLeft === 14 || pointsRight === 14) && (
         <button
           onClick={onPerdeTudo}
-          className="fixed bottom-24 sm:bottom-2 left-1/2 -translate-x-1/2 z-[100] w-[calc(100%-4rem)] md:w-auto md:px-6 py-2 bg-red-900/20 border border-red-900/50 rounded-2xl text-white text-sm font-black uppercase animate-pulse"
+          className="fixed bottom-24 sm:bottom-2 left-1/2 -translate-x-1/2 z-100 w-[calc(100%-4rem)] md:w-auto md:px-6 py-2 border rounded-2xl text-sm font-black uppercase animate-pulse tru-danger-soft"
         >
           Perde Tudo
         </button>

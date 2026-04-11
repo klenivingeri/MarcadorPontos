@@ -2,6 +2,7 @@ import { Inter, Roboto } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegistry from "./ServiceWorkerRegistry";
 import { GameProvider } from "@/context/GameContext";
+import ThemeInitializer from "./ThemeInitializer";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -51,6 +52,7 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col">
         <GameProvider>
+          <ThemeInitializer />
           <ServiceWorkerRegistry />
           {children}
         </GameProvider>

@@ -101,14 +101,14 @@ export default function ChampionPage() {
 
   return (
     <div
-      className="min-h-screen animate-slow-fade bg-black text-white"
+      className="min-h-screen animate-slow-fade tru-page-bg tru-page-text"
       style={{
-        backgroundImage: settings.bgUrl ? `url(${settings.bgUrl})` : "none",
+        backgroundImage: settings.bgUrl ? `url("${settings.bgUrl}")` : "none",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="relative min-h-screen flex items-center justify-center bg-black/85 px-4 py-5">
+      <div className="relative min-h-screen flex items-center justify-center tru-overlay-bg px-4 py-5">
         <Link
           href="/"
           className="fixed top-5 left-4 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300 transition-colors hover:text-white z-10"

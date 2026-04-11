@@ -21,13 +21,16 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm flex items-start justify-center p-4 pt-8 ">
-      <div className="w-full max-w-sm bg-[radial-gradient(ellipse_at_top,rgba(34,197,94,0.15),transparent_65%)] bg-black/20 backdrop-blur-md border border-white/10 shadow-xl rounded-3xl overflow-hidden">
+    <div className="fixed inset-0 z-200S bg-black/70 backdrop-blur-sm flex items-start justify-center p-4 pt-8 ">
+      <div
+        className="w-full max-w-sm bg-black/20 backdrop-blur-md border border-white/10 shadow-xl rounded-3xl overflow-hidden"
+        style={{ backgroundImage: "radial-gradient(ellipse at top, color-mix(in srgb, var(--tru-default) 15%, transparent), transparent 65%)" }}
+      >
 
         {/* HEADER */}
         <header className="px-6 pt-6 pb-4 flex justify-between items-start">
           <div>
-            <span className="inline-block px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-green-400 text-[9px] font-black uppercase tracking-[0.2em] mb-2">
+            <span className="inline-block px-3 py-1 border rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-2 tru-accent-badge">
               Nova Partida
             </span>
             <h2 className="text-xl font-black text-white uppercase italic leading-tight">
@@ -36,7 +39,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
           </div>
           <button
             onClick={() => onClose({ started: false })}
-            className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-colors mt-1"
+            className="p-2 rounded-xl transition-colors mt-1 tru-btn-ghost"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
               <path d="M18 6L6 18M6 6l12 12" />
@@ -68,7 +71,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
                   value={value}
                   onChange={(e) => setter(e.target.value)}
                   placeholder={placeholder}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-3 py-3 text-xs font-bold text-white placeholder:text-zinc-600 focus:border-green-500/60 focus:bg-green-500/5 outline-none transition-all"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl px-3 py-3 text-xs font-bold text-white placeholder:text-zinc-600 outline-none transition-all"
                 />
               </div>
             ))}
@@ -86,8 +89,8 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
                   onClick={() => setRounds(n)}
                   className={`flex-1 py-3 rounded-2xl font-black text-sm transition-all border ${
                     rounds === n
-                      ? "bg-green-500 border-green-400 text-black shadow-lg shadow-green-500/30"
-                      : "bg-white/5 border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300"
+                      ? "tru-btn-solid tru-accent-shadow"
+                      : "tru-btn-ghost"
                   }`}
                 >
                   {n}
@@ -106,13 +109,13 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
           <div className="space-y-2">
             <button
               onClick={() => startMatch(true)}
-              className="w-full bg-linear-to-r from-green-500 to-green-400 text-black py-4 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg shadow-green-500/25 hover:shadow-green-500/40"
+              className="w-full tru-btn-solid py-4 rounded-2xl font-black uppercase tracking-widest active:scale-95 transition-all tru-accent-shadow"
             >
               Iniciar Partida
             </button>
             <button
               onClick={() => onClose({ started: false })}
-              className="w-full py-2 text-zinc-600 hover:text-zinc-400 font-bold text-[10px] uppercase tracking-widest text-center transition-colors"
+              className="w-full py-2 font-bold text-[10px] uppercase tracking-widest text-center transition-colors rounded-xl tru-btn-ghost"
             >
               Cancelar
             </button>

@@ -1,8 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #070707;
+  --foreground: #f5f5f5;
+  --surface: rgba(9, 9, 11, 0.8);
+  --surface-border: rgba(255, 255, 255, 0.1);
+  --overlay: rgba(0, 0, 0, 0.84);
+  --text-muted: #a1a1aa;
+
+  /* Default theme: ninja */
+  --tru-default: #A54B3A;
+  --tru-hover: #C15D4D;
+  --tru-focus: #7D382C;
+  --tru-pressed: #5A2920;
+  --tru-disabled: #D2B4A9;
+  --tru-progress: #E6B34B;
+
+  /* Semantic states */
+  --tru-danger: #B43A30;
+  --tru-danger-strong: #8F2C25;
+  --tru-on-accent: #0b0b0b;
 }
 
 @theme inline {
@@ -19,13 +36,239 @@
   }
 }
 
+:root[data-color-mode="light"] {
+  --background: #f4f1ea;
+  --foreground: #161616;
+  --surface: rgba(255, 255, 255, 0.55);
+  --surface-border: rgba(17, 24, 39, 0.16);
+  --overlay: rgba(255, 255, 255, 0.78);
+  --text-muted: #3f3f46;
+  --tru-on-accent: #111111;
+}
+
+:root[data-color-mode="dark"] {
+  --background: #070707;
+  --foreground: #f5f5f5;
+  --surface: rgba(9, 9, 11, 0.8);
+  --surface-border: rgba(255, 255, 255, 0.1);
+  --overlay: rgba(0, 0, 0, 0.84);
+  --text-muted: #a1a1aa;
+  --tru-on-accent: #0b0b0b;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
 
+:root[data-theme="purple"] {
+  --tru-default: #9B59B6;   /* Roxo Amethyst */
+  --tru-hover: #AF7AC5;     /* Roxo claro para o hover */
+  --tru-focus: #8E44AD;     /* Roxo mais escuro para o focus */
+  --tru-pressed: #82589F;   /* Um tom um pouco mais escuro que o padrão para o estado pressionado */
+  --tru-disabled: #D2B4DE;  /* Roxo bem claro para o estado desabilitado */
+  --tru-progress: #BB8FCE;  /* Roxo intermediário para a barra de progresso */
+}
+
+:root[data-theme="green"] {
+  --tru-default: #2ECC71; /* Verde Esmeralda */
+  --tru-hover: #58D683;
+  --tru-focus: #27AE60;
+  --tru-pressed: #28B463;
+  --tru-disabled: #A9DFBF;
+  --tru-progress: #52BE80;
+}
+
+:root[data-theme="wood"] {
+  --tru-default: #8B5A2B;  /* Marrom madeira padrão */
+  --tru-hover: #A97443;    /* Marrom claro (polido) */
+  --tru-focus: #6E3E1C;    /* Tom mais escuro, foco */
+  --tru-pressed: #5C3317;  /* Madeira profunda */
+  --tru-disabled: #C8B49B; /* Bege amadeirado, apagado */
+  --tru-progress: #B07A3D; /* Tom médio dourado, progresso */
+}
+
+:root[data-theme="blue"] {
+  --tru-default: #3498DB;
+  --tru-hover: #5DADE2;
+  --tru-focus: #2E86C1;
+  --tru-pressed: #2874A6;
+  --tru-disabled: #A9CCE3;
+  --tru-progress: #5DADE2;
+}
+
+:root[data-theme="red"] {
+  --tru-default: #E74C3C;
+  --tru-hover: #EC7063;
+  --tru-focus: #C0392B;
+  --tru-pressed: #CD4235;
+  --tru-disabled: #FADBD8;
+  --tru-progress: #E56357;
+}
+
+:root[data-theme="pink"] {
+  --tru-default: #E83E8C;
+  --tru-hover: #F06292; 
+  --tru-focus: #C2185B;
+  --tru-pressed: #D81B60; 
+  --tru-disabled: #FCE4EC;
+  --tru-progress: #EC407A;
+}
+
+:root[data-theme="orange"] {
+  --tru-default: #FF9900;
+  --tru-hover: #FFB84D;
+  --tru-focus: #CC7A00;
+  --tru-pressed: #D98500;
+  --tru-disabled: #FFDDAA;
+  --tru-progress: #FFC066;
+}
+
+:root[data-theme="black"] {
+  --tru-default: #1C1C1C;
+  --tru-hover: #333333;
+  --tru-focus: #000000;
+  --tru-pressed: #000000;
+  --tru-disabled: #AAAAAA;
+  --tru-progress: #4D4D4D; 
+}
+
+:root[data-theme="ninja"] {
+  --tru-default: #A54B3A; 
+  --tru-hover: #C15D4D; 
+  --tru-focus: #7D382C; 
+  --tru-pressed: #5A2920; 
+  --tru-disabled: #D2B4A9; 
+  --tru-progress: #E6B34B; 
+}
+
+
 @layer utilities {
+  .tru-page-bg {
+    background-color: var(--background);
+  }
+
+  .tru-page-text {
+    color: var(--foreground);
+  }
+
+  .tru-surface {
+    background-color: var(--surface);
+    border-color: var(--surface-border);
+  }
+
+  .tru-overlay-bg {
+    background-color: var(--overlay);
+  }
+
+  .tru-btn-solid {
+    background-color: var(--tru-default);
+    border: 1px solid color-mix(in srgb, var(--tru-default) 65%, #000000 35%);
+    color: var(--tru-on-accent);
+  }
+
+  .tru-btn-solid:hover {
+    background-color: var(--tru-hover);
+  }
+
+  .tru-btn-solid:active {
+    background-color: var(--tru-pressed);
+  }
+
+  .tru-btn-ghost {
+    background-color: color-mix(in srgb, var(--tru-default) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tru-default) 34%, transparent);
+    color: color-mix(in srgb, var(--foreground) 88%, var(--tru-default) 12%);
+  }
+
+  .tru-btn-ghost:hover {
+    background-color: color-mix(in srgb, var(--tru-default) 22%, transparent);
+    color: var(--foreground);
+  }
+
+  .tru-btn-icon {
+    color: color-mix(in srgb, var(--foreground) 58%, var(--tru-default) 42%);
+  }
+
+  .tru-btn-icon:hover {
+    color: var(--foreground);
+  }
+
+  .tru-muted-text {
+    color: var(--text-muted);
+  }
+
+  .tru-accent-text {
+    color: var(--tru-default);
+  }
+
+  .tru-accent-text-soft {
+    color: var(--tru-progress);
+  }
+
+  .tru-accent-bg {
+    background-color: var(--tru-default);
+  }
+
+  .tru-accent-bg-hover:hover {
+    background-color: var(--tru-hover);
+  }
+
+  .tru-accent-bg-active:active {
+    background-color: var(--tru-pressed);
+  }
+
+  .tru-accent-border {
+    border-color: var(--tru-default);
+  }
+
+  .tru-accent-ring:focus {
+    outline: 1px solid var(--tru-focus);
+    outline-offset: 0;
+  }
+
+  .tru-accent-badge {
+    color: var(--tru-progress);
+    background-color: color-mix(in srgb, var(--tru-default) 12%, transparent);
+    border-color: color-mix(in srgb, var(--tru-default) 24%, transparent);
+  }
+
+  .tru-accent-glow {
+    box-shadow: 0 0 28px color-mix(in srgb, var(--tru-default) 30%, transparent);
+  }
+
+  .tru-accent-shadow {
+    box-shadow: 0 14px 32px color-mix(in srgb, var(--tru-default) 28%, transparent);
+  }
+
+  .tru-danger-text {
+    color: var(--tru-danger);
+  }
+
+  .tru-danger-soft {
+    background-color: color-mix(in srgb, var(--tru-danger) 18%, transparent);
+    border-color: color-mix(in srgb, var(--tru-danger) 45%, transparent);
+    color: color-mix(in srgb, var(--tru-danger) 88%, #ffffff 12%);
+  }
+
+  .tru-danger-active:active {
+    background-color: var(--tru-danger-strong);
+    color: #ffffff;
+  }
+
+  .tru-progress-text {
+    color: var(--tru-progress);
+  }
+
+  .tru-progress-bg {
+    background-color: var(--tru-progress);
+  }
+
+  .tru-on-accent {
+    color: var(--tru-on-accent);
+  }
+
   @keyframes slideInFromTop {
     0% {
       transform: translateY(-100px);

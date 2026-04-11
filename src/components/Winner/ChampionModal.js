@@ -9,14 +9,15 @@ const ChampionModal = ({ winnerName, score, onRestart, configGame, durationLabel
 
   return (
     <>
-    <div className="relative w-full max-w-sm bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.28),transparent_70%)] landscape:max-w-xl animate-slow-fade overflow-hidden rounded-4xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl">
+    <div className="relative w-full max-w-sm landscape:max-w-xl animate-slow-fade overflow-hidden rounded-4xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl"
+      style={{ backgroundImage: "radial-gradient(circle at top, color-mix(in srgb, var(--tru-default) 28%, transparent), transparent 70%)" }}>
       <div className="absolute inset-x-0 top-0 h-40 pointer-events-none" />
       <div className="relative p-4 overflow-hidden">
         <div className="landscape:flex landscape:gap-5 landscape:items-center">
 
           <div className="landscape:flex-1 text-center">
             <header className="mb-2 landscape:mb-3">
-              <span className="inline-block px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-green-400 text-[9px] font-black uppercase tracking-[0.2em] mb-2">
+              <span className="inline-block px-3 py-1 border rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-2 tru-accent-badge">
                 Partida Finalizada
               </span>
               <h2 className="text-zinc-400 font-black text-xs uppercase tracking-[0.35em]">
@@ -38,8 +39,8 @@ const ChampionModal = ({ winnerName, score, onRestart, configGame, durationLabel
             </div>
 
             <div className="relative w-12 h-12 mx-auto mb-3 landscape:mb-0 flex items-center justify-center">
-              <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-10" />
-              <div className="relative bg-linear-to-b from-green-400 to-green-600 w-11 h-11 rounded-full flex items-center justify-center shadow-lg shadow-green-500/30">
+              <div className="absolute inset-0 tru-progress-bg rounded-full animate-ping opacity-10" />
+              <div className="relative tru-accent-bg w-11 h-11 rounded-full flex items-center justify-center tru-accent-shadow">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
                   <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
@@ -75,7 +76,7 @@ const ChampionModal = ({ winnerName, score, onRestart, configGame, durationLabel
             <Link
               href="/arena"
               onClick={onRestart}
-              className="block w-full bg-green-500 hover:bg-green-400 text-black py-3 rounded-xl font-black uppercase tracking-widest active:scale-95 transition-all shadow-lg text-center"
+              className="block w-full tru-accent-bg tru-accent-bg-hover tru-on-accent py-3 rounded-xl font-black uppercase tracking-widest active:scale-95 transition-all tru-accent-shadow text-center"
             >
               Nova Partida
             </Link>
