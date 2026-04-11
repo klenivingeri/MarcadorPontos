@@ -1,6 +1,7 @@
 import { Inter, Roboto } from "next/font/google";
 import "./globals.css";
 import ServiceWorkerRegistry from "./ServiceWorkerRegistry";
+import { GameProvider } from "@/context/GameContext";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,8 +50,10 @@ export default function RootLayout({ children }) {
       className={`${inter.variable} ${roboto.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ServiceWorkerRegistry />
-        {children}
+        <GameProvider>
+          <ServiceWorkerRegistry />
+          {children}
+        </GameProvider>
       </body>
     </html>
   );

@@ -8,35 +8,47 @@ import { colors_from_image } from "@/constants/colors";
 import ChampionModal from "@/components/Winner/ChampionModal";
 import Pato from "@/components/pato";
 import Link from "next/link";
+import { useGame } from "@/context/GameContext";
+
+const INIT_GAME_COUNTDOWN = 7;
+const DEFAULT_MATCH_CONFIG = {
+  teamLeft: "Time 1",
+  teamRight: "Time 2",
+  maxRounds: 1,
+};
+
+const createFinishModalState = () => ({
+  visible: false,
+  winner: null,
+  countdown: INIT_GAME_COUNTDOWN,
+  championVisible: false,
+  gameSnapshot: null,
+});
 
 export default function Arena() {
-  const [pointsLeft, setPointsLeft] = useState(0);
-  const [pointsRight, setPointsRight] = useState(0);
-  const [setsLeft, setSetsLeft] = useState(0);
-  const [setsRight, setSetsRight] = useState(0);
+  const {
+    currentGame,
+    startGame: startMatch,
+    addPoints,
+    subtractPoint,
+    completeSet,
+    finalizeGame,
+    clearCurrentGame,
+  } = useGame();
   const [showMaoDeFerro, setShowMaoDeFerro] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const initGame = 7;
   const [showConfig, setShowConfig] = useState(false);
-  const [startGame, setStartGame] = useState(true);
-  const [configGame, setConfigGame] = useState({
-    teamLeft: "Time 1",
-    teamRight: "Time 2",
-    maxRounds: 1,
-  });
+  const [startGame, setStartGame] = useState(
+    !currentGame || currentGame.status === "finished",
+  );
 
-  // Estados para o novo Modal de Finalização
-  const [finishModal, setFinishModal] = useState({
-    visible: false,
-    winner: null,
-    countdown: 10,
-  });
+  const [finishModal, setFinishModal] = useState(createFinishModalState);
   const timerRef = useRef(null);
   const patoTimeoutRef = useRef(null);
   const [showPato, setShowPato] = useState(false);
   const [patoSide, setPatoSide] = useState("right");
   const [patoLosingTeam, setPatoLosingTeam] = useState("");
-  const [patoAvailable, setPatoAvailable] = useState({
+  const [disabledPatoSides, setDisabledPatoSides] = useState({
     left: false,
     right: false,
   });
@@ -47,6 +59,28 @@ export default function Arena() {
     buttonVisible: true,
     bgUrl: "",
   });
+
+  const leftTeam = currentGame?.teams?.[0];
+  const rightTeam = currentGame?.teams?.[1];
+  const pointsLeft = leftTeam?.score || 0;
+  const pointsRight = rightTeam?.score || 0;
+  const setsLeft = leftTeam?.setsWon || 0;
+  const setsRight = rightTeam?.setsWon || 0;
+  const configGame = {
+    teamLeft: leftTeam?.name || DEFAULT_MATCH_CONFIG.teamLeft,
+    teamRight: rightTeam?.name || DEFAULT_MATCH_CONFIG.teamRight,
+    maxRounds: currentGame?.maxRounds || DEFAULT_MATCH_CONFIG.maxRounds,
+  };
+  const patoAvailable = {
+    left:
+      !!currentGame &&
+      pointsLeft - pointsRight >= 6 &&
+      !disabledPatoSides.left,
+    right:
+      !!currentGame &&
+      pointsRight - pointsLeft >= 6 &&
+      !disabledPatoSides.right,
+  };
 
   useEffect(() => {
     const loadSettings = () => {
@@ -63,6 +97,7 @@ export default function Arena() {
 
   useEffect(() => {
     return () => {
+      clearTimeout(timerRef.current);
       if (patoTimeoutRef.current) {
         clearTimeout(patoTimeoutRef.current);
       }
@@ -70,6 +105,8 @@ export default function Arena() {
   }, []);
 
   const canLaunchPato = (side) => {
+    if (!currentGame) return false;
+
     const diff =
       side === "right" ? pointsRight - pointsLeft : pointsLeft - pointsRight;
     return diff >= 6;
@@ -83,9 +120,9 @@ export default function Arena() {
     }
 
     // Desabilita o pato do lado que foi clicado
-    setPatoAvailable((prev) => ({
+    setDisabledPatoSides((prev) => ({
       ...prev,
-      [side]: false,
+      [side]: true,
     }));
 
     const oppositeSide = side === "left" ? "right" : "left";
@@ -108,19 +145,9 @@ export default function Arena() {
     if (saved) setSettings(JSON.parse(saved));
   };
 
-  // Lógica do Cronômetro do Modal de Finalização
-  useEffect(() => {
-    if (finishModal.visible && finishModal.countdown > 0) {
-      timerRef.current = setTimeout(() => {
-        setFinishModal((prev) => ({ ...prev, countdown: prev.countdown - 1 }));
-      }, 1000);
-    } else if (finishModal.visible && finishModal.countdown === 0) {
-      executeFinishSet(finishModal.winner);
-    }
-    return () => clearTimeout(timerRef.current);
-  }, [finishModal]);
-
   const handleAddPoints = (side, value) => {
+    if (!currentGame || currentGame.status !== "playing") return;
+
     // Retorno tátil opcional ao atribuir pontos
     if (
       settings.vibrate &&
@@ -135,30 +162,14 @@ export default function Arena() {
 
     // Bloqueia novos cliques
     if (value > 1) setIsProcessing(true);
+    setDisabledPatoSides({ left: false, right: false });
+    const nextGame = addPoints(side, value);
+    const nextScore = side === "left"
+      ? nextGame?.teams?.[0]?.score || 0
+      : nextGame?.teams?.[1]?.score || 0;
 
-    // Atualiza os pontos e verifica disponibilidade do pato para each lado
-    const updatePoints = (currentPoints) => {
-      const newTotal = currentPoints + value;
-      const oppositePoints = side === "left" ? pointsRight : pointsLeft;
-      const diff = Math.abs(newTotal - oppositePoints);
-
-      // Habilita o pato se a diferença é >= 6, desabilita caso contrário
-      setPatoAvailable((prev) => ({
-        ...prev,
-        [side]: diff >= 6,
-      }));
-
-      return newTotal;
-    };
-
-    if (side === "left") {
-      const newTotal = updatePoints(pointsLeft);
-      setPointsLeft(newTotal);
-      if (newTotal >= 15) setTimeout(() => triggerFinishSequence("left"), 100);
-    } else {
-      const newTotal = updatePoints(pointsRight);
-      setPointsRight(newTotal);
-      if (newTotal >= 15) setTimeout(() => triggerFinishSequence("right"), 100);
+    if (nextScore >= 15) {
+      setTimeout(() => triggerFinishSequence(side), 100);
     }
 
     // Libera o clique após 500ms
@@ -168,48 +179,57 @@ export default function Arena() {
   };
 
   const triggerFinishSequence = (winner) => {
+    if (!currentGame) return;
+
     // 1. Calculamos o que aconteceria com os sets se esse vencedor ganhar a rodada agora
     const nextSetsValue = winner === "left" ? setsLeft + 1 : setsRight + 1;
     const isFinalVictory = nextSetsValue >= configGame.maxRounds;
 
     if (isFinalVictory) {
-      // 2. Se for a vitória final, pulamos o timer e vamos direto para o Campeão
-      // Atualizamos o placar de sets para o modal ler o valor correto
-      if (winner === "left") setSetsLeft(nextSetsValue);
-      else setSetsRight(nextSetsValue);
-
+      const finishedGame = finalizeGame(winner);
       setFinishModal({
         visible: false,
         winner: winner,
         countdown: 0,
-        championVisible: true, // Abre direto o troféu
+        championVisible: true,
+        gameSnapshot: finishedGame,
       });
     } else {
-      // 3. Se não for a final, mostramos o timer de "Fim da Rodada" normalmente
       setFinishModal({
         visible: true,
         winner,
-        countdown: initGame,
+        countdown: INIT_GAME_COUNTDOWN,
         championVisible: false,
+        gameSnapshot: null,
       });
     }
   };
 
   const cancelFinish = () => {
     clearTimeout(timerRef.current);
-    setFinishModal({ visible: false, winner: null, countdown: initGame });
+    setFinishModal(createFinishModalState());
   };
 
-  const executeFinishSet = (winner) => {
-    if (winner === "left") setSetsLeft((s) => s + 1);
-    else setSetsRight((s) => s + 1);
-    setPointsLeft(0);
-    setPointsRight(0);
-    setShowMaoDeFerro(false);
-    setFinishModal({ visible: false, winner: null, countdown: initGame });
-  };
+  // Lógica do Cronômetro do Modal de Finalização
+  useEffect(() => {
+    if (finishModal.visible && finishModal.countdown > 0) {
+      timerRef.current = setTimeout(() => {
+        if (finishModal.countdown === 1) {
+          completeSet(finishModal.winner);
+          setShowMaoDeFerro(false);
+          setFinishModal(createFinishModalState());
+          return;
+        }
+
+        setFinishModal((prev) => ({ ...prev, countdown: prev.countdown - 1 }));
+      }, 1000);
+    }
+    return () => clearTimeout(timerRef.current);
+  }, [completeSet, finishModal.visible, finishModal.countdown, finishModal.winner]);
 
   const handlePerdeTudo = (culpable) => {
+    if (!currentGame) return;
+
     if (pointsLeft === 14 && pointsRight === 14) {
       if (!culpable) {
         setShowMaoDeFerro(true);
@@ -223,30 +243,22 @@ export default function Arena() {
   };
 
   const handleInitGame = () => {
-    setPointsLeft(0);
-    setPointsRight(0);
-    setSetsLeft(0);
-    setSetsRight(0);
+    clearTimeout(timerRef.current);
+    if (patoTimeoutRef.current) {
+      clearTimeout(patoTimeoutRef.current);
+    }
+    setShowPato(false);
+    setPatoSide("right");
+    setPatoLosingTeam("");
+    setDisabledPatoSides({ left: false, right: false });
+    setShowMaoDeFerro(false);
+    setIsProcessing(false);
+    setFinishModal(createFinishModalState());
   };
 
   const handleResetFullGame = () => {
-    setPointsLeft(0);
-    setPointsRight(0);
-    setSetsLeft(0);
-    setSetsRight(0);
-    setShowMaoDeFerro(false);
-    setIsProcessing(false);
-    setPatoAvailable({
-      left: false,
-      right: false,
-    });
-    setPatoLosingTeam("");
-    setFinishModal({
-      visible: false,
-      winner: null,
-      countdown: initGame,
-      championVisible: false,
-    });
+    handleInitGame();
+    clearCurrentGame();
     setStartGame(true);
   };
 
@@ -265,13 +277,19 @@ export default function Arena() {
           <ChampionModal
             isOpen={finishModal.championVisible}
             winnerName={
-              finishModal.winner === "left"
+              finishModal.gameSnapshot?.teams?.find(
+                (team) => team.id === finishModal.gameSnapshot?.sets?.at(-1)?.winnerTeamId,
+              )?.name ||
+              (finishModal.winner === "left"
                 ? configGame.teamLeft
-                : configGame.teamRight
+                : configGame.teamRight)
             }
-            score={{ left: setsLeft, right: setsRight }}
+            score={{
+              left: finishModal.gameSnapshot?.teams?.[0]?.setsWon || setsLeft,
+              right: finishModal.gameSnapshot?.teams?.[1]?.setsWon || setsRight,
+            }}
             configGame={configGame}
-            onRestart={handleResetFullGame} // <--- Este nome deve bater com a const acima
+            onRestart={handleResetFullGame}
             onClose={() =>
               setFinishModal((p) => ({ ...p, championVisible: false }))
             }
@@ -322,7 +340,7 @@ export default function Arena() {
                     className="text-green-500"
                     strokeDasharray="226"
                     strokeDashoffset={
-                      226 - (226 * finishModal.countdown) / initGame
+                      226 - (226 * finishModal.countdown) / INIT_GAME_COUNTDOWN
                     }
                     strokeLinecap="round"
                     style={{ transition: "stroke-dashoffset 1s linear" }}
@@ -417,7 +435,10 @@ export default function Arena() {
           )}
           <div className="flex flex-col sm:flex-row gap-2">
             <button
-              onClick={() => setPointsLeft(Math.max(0, pointsLeft - 1))}
+              onClick={() => {
+                setDisabledPatoSides({ left: false, right: false });
+                subtractPoint("left");
+              }}
               className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
             >
               -1
@@ -659,7 +680,10 @@ export default function Arena() {
               </div>
             )}
             <button
-              onClick={() => setPointsRight(Math.max(0, pointsRight - 1))}
+              onClick={() => {
+                setDisabledPatoSides({ left: false, right: false });
+                subtractPoint("right");
+              }}
               className="w-14 sm:w-full h-full sm:h-14 bg-red-900/20 border border-red-900/50 rounded-xl text-red-500 font-bold active:bg-red-600 active:text-white transition-all"
             >
               -1
@@ -677,9 +701,12 @@ export default function Arena() {
         />
         <MatchConfigModal
           isOpen={startGame}
-          onStart={setConfigGame}
+          onStart={(matchConfig) => startMatch(matchConfig)}
           handleInitGame={handleInitGame}
-          onClose={() => {
+          onClose={({ started } = {}) => {
+            if (!started && (!currentGame || currentGame.status === "finished")) {
+              startMatch(DEFAULT_MATCH_CONFIG);
+            }
             setStartGame(false);
           }}
         />

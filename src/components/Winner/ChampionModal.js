@@ -1,48 +1,9 @@
 "use client";
 import { colors_from_image } from "@/constants/colors";
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import Confetti from "react-confetti-boom";
 
 const ChampionModal = ({ isOpen, winnerName, score, onRestart, configGame }) => {
-  const hasSaved = useRef(false);
-
-  useEffect(() => {
-    if (isOpen && !hasSaved.current) {
-      const saveToHistory = () => {
-        try {
-          const now = new Date();
-          const timestampId = now.getFullYear().toString() +
-            (now.getMonth() + 1).toString().padStart(2, '0') +
-            now.getDate().toString().padStart(2, '0') + "-" +
-            now.getHours().toString().padStart(2, '0') +
-            now.getMinutes().toString().padStart(2, '0') +
-            now.getSeconds().toString().padStart(2, '0');
-
-          const gameData = {
-            id: timestampId, 
-            date: now.toLocaleDateString("pt-BR"),
-            time: now.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }),
-            winner: winnerName,
-            score: { left: score.left, right: score.right },
-            teams: {
-              left: configGame?.teamLeft || "Time A",
-              right: configGame?.teamRight || "Time B",
-            },
-          };
-
-          const localHistory = JSON.parse(localStorage.getItem("game_history") || "[]");
-          const updatedHistory = [gameData, ...localHistory];
-          localStorage.setItem("game_history", JSON.stringify(updatedHistory));
-          hasSaved.current = true; 
-        } catch (error) {
-          console.error("Erro ao salvar histórico:", error);
-        }
-      };
-      saveToHistory();
-    }
-    if (!isOpen) hasSaved.current = false;
-  }, [isOpen, winnerName, score, configGame]);
-
   if (!isOpen) return null;
 
   return (

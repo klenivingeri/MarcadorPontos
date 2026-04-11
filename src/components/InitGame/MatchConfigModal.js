@@ -15,7 +15,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
         maxRounds: rounds,
       });
     }
-    onClose();
+    onClose({ started: isQuickStart });
   };
 
   if (!isOpen) return null;
@@ -27,7 +27,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
         
         <header className="sticky top-0 z-10 bg-zinc-900 px-6 py-4 border-b border-zinc-800 flex justify-between items-center shrink-0">
           <h2 className="text-sm font-black uppercase tracking-widest text-white/50">Nova Partida</h2>
-          <button onClick={onClose} className="p-1 hover:bg-zinc-800 rounded-lg transition-colors">
+          <button onClick={() => onClose({ started: false })} className="p-1 hover:bg-zinc-800 rounded-lg transition-colors">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
@@ -83,7 +83,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
               Iniciar Partida
             </button>
             <button 
-              onClick={onClose}
+              onClick={() => onClose({ started: false })}
               className="w-full text-zinc-500 py-2 font-bold text-[10px] uppercase tracking-wider text-center"
             >
               Cancelar

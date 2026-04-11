@@ -2,6 +2,43 @@
 import Link from "next/link";
 import React, { useEffect, useState, useMemo } from "react";
 
+const mapGameToHistoryView = (game) => {
+  const leftTeam = game?.teams?.[0] || {
+    id: "left",
+    name: "Time 1",
+    setsWon: 0,
+  };
+  const rightTeam = game?.teams?.[1] || {
+    id: "right",
+    name: "Time 2",
+    setsWon: 0,
+  };
+  const winnerTeam =
+    leftTeam.setsWon >= rightTeam.setsWon ? leftTeam : rightTeam;
+  const matchDate = game?.endTime ? new Date(game.endTime) : null;
+
+  return {
+    id: game?.id,
+    teams: {
+      left: leftTeam.name,
+      right: rightTeam.name,
+    },
+    winner: winnerTeam.name,
+    score: {
+      left: leftTeam.setsWon || 0,
+      right: rightTeam.setsWon || 0,
+    },
+    date: matchDate ? matchDate.toLocaleDateString("pt-BR") : "Sem data",
+    time: matchDate
+      ? matchDate.toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "--:--",
+    raw: game,
+  };
+};
+
 const HistoryPage = () => {
   const [history, setHistory] = useState([]);
   const [userSettings, setUserSettings] = useState(null);
@@ -18,6 +55,11 @@ const HistoryPage = () => {
     setUserSettings(savedSettings);
   }, []);
 
+  const mappedHistory = useMemo(
+    () => history.map((game) => mapGameToHistoryView(game)),
+    [history],
+  );
+
   // Define o alvo da análise (Prioriza a busca, depois o ID salvo)
   const activeTarget = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -29,15 +71,15 @@ const HistoryPage = () => {
 
   // 1. Filtro da Lista
   const filteredHistory = useMemo(() => {
-    if (!searchTerm) return history;
+    if (!searchTerm) return mappedHistory;
     const term = searchTerm.toLowerCase();
-    return history.filter(
+    return mappedHistory.filter(
       (game) =>
         game.teams.left.toLowerCase().includes(term) ||
         game.teams.right.toLowerCase().includes(term) ||
         game.winner.toLowerCase().includes(term),
     );
-  }, [history, searchTerm]);
+  }, [mappedHistory, searchTerm]);
 
   // 2. Estatísticas Dinâmicas (Win Streak e Losses)
   const stats = useMemo(() => {
@@ -50,8 +92,8 @@ const HistoryPage = () => {
     let isStreakActive = true;
 
     // Iteramos do mais recente para o mais antigo
-    for (let i = history.length - 1; i >= 0; i--) {
-      const game = history[i];
+    for (let i = mappedHistory.length - 1; i >= 0; i--) {
+      const game = mappedHistory[i];
       const teamLeft = game.teams.left.toLowerCase();
       const teamRight = game.teams.right.toLowerCase();
       const winner = game.winner.toLowerCase();
@@ -74,7 +116,7 @@ const HistoryPage = () => {
     const winRate = totalGames > 0 ? (wins / totalGames) * 100 : 0;
 
     return { streak, wins, losses, winRate };
-  }, [history, activeTarget]);
+  }, [mappedHistory, activeTarget]);
 
   const deleteEntry = (id) => {
     if (confirm("Excluir esta partida?")) {
@@ -111,7 +153,14 @@ const HistoryPage = () => {
             Historico
           </h1>
           <button
-            onClick={() => confirm("Limpar histórico?") && setHistory([])}
+            onClick={() => {
+              if (!confirm("Limpar histórico?")) {
+                return;
+              }
+
+              localStorage.setItem("game_history", JSON.stringify([]));
+              setHistory([]);
+            }}
             className="text-[10px] font-bold text-zinc-700 hover:text-red-500 uppercase tracking-widest transition-all"
           >
             Limpar Tudo
