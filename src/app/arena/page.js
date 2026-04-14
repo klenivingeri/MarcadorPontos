@@ -1,15 +1,14 @@
 "use client";
-import React, { Suspense, useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { toggleFullScreen } from "../utils/toggleFullScreen";
 import ConfigModal from "@/components/Menu/ConfigModal";
-import MatchConfigModal from "@/components/InitGame/MatchConfigModal";
 import Pato from "@/components/pato";
 import ArenaScoreSection from "@/components/Arena/ArenaScoreSection";
 import ArenaScoreSectionMirrored from "@/components/Arena/ArenaScoreSectionMirrored";
 import ArenaPointsAside from "@/components/Arena/ArenaPointsAside";
 import Link from "next/link";
-import { useGame } from "@/context/GameContext";
+import { getRequiredSetsToWin, useGame } from "@/context/GameContext";
 
 const DEFAULT_MATCH_CONFIG = {
   teamLeft: "Time 1",
@@ -19,9 +18,6 @@ const DEFAULT_MATCH_CONFIG = {
 
 function ArenaContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const fromHome = searchParams.get("from") === "home";
-  const initializedFromHomeRef = useRef(false);
   const {
     currentGame,
     startGame: startMatch,
@@ -29,12 +25,12 @@ function ArenaContent() {
     subtractPoint,
     finalizeGame,
   } = useGame();
+  const shouldBootstrapDefaultRef = useRef(
+    !currentGame || currentGame.status === "finished",
+  );
   const [showMaoDeFerro, setShowMaoDeFerro] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
-  const [startGame, setStartGame] = useState(
-    !currentGame || currentGame.status === "finished",
-  );
   const patoTimeoutRef = useRef(null);
   const [showPato, setShowPato] = useState(false);
   const [patoSide, setPatoSide] = useState("right");
@@ -65,27 +61,11 @@ function ArenaContent() {
     teamRight: rightTeam?.name || DEFAULT_MATCH_CONFIG.teamRight,
     maxRounds: currentGame?.maxRounds || DEFAULT_MATCH_CONFIG.maxRounds,
   };
-  const roundsDotSizeClass =
-    configGame.maxRounds >= 7
-      ? "text-xl sm:text-xl"
-      : configGame.maxRounds >= 5
-        ? "text-2xl sm:text-2xl"
-        : "text-4xl sm:text-3xl";
-  const roundsGapClass = configGame.maxRounds >= 7
-    ? "gap-1 sm:gap-3"
-    : configGame.maxRounds >= 5
-      ? "gap-2 sm:gap-4"
-      : "gap-4 sm:gap-6";
-  const roundsDotGapClass = configGame.maxRounds >= 7
-    ? "gap-0"
-    : configGame.maxRounds >= 5
-      ? "gap-0.5"
-      : "gap-1";
-  const roundsScaleClass = configGame.maxRounds >= 7
-    ? "scale-90 sm:scale-100"
-    : configGame.maxRounds >= 5
-      ? "scale-95 sm:scale-100"
-      : "";
+  const setsNeededToWin = getRequiredSetsToWin(configGame.maxRounds);
+  const roundsDotSizeClass = "text-3xl sm:text-3xl";
+  const roundsGapClass = "gap-3 sm:gap-4";
+  const roundsDotGapClass = "gap-1";
+  const roundsScaleClass = "";
   const isMirrorActive = isPortrait && useMirroredScore;
   const patoAvailable = {
     left:
@@ -137,15 +117,14 @@ function ArenaContent() {
   }, []);
 
   useEffect(() => {
-    if (!fromHome || initializedFromHomeRef.current) {
+    if (!shouldBootstrapDefaultRef.current) {
       return;
     }
 
-    initializedFromHomeRef.current = true;
+    shouldBootstrapDefaultRef.current = false;
     handleInitGame();
     startMatch(DEFAULT_MATCH_CONFIG);
-    setStartGame(true);
-  }, [fromHome, startMatch]);
+  }, [startMatch]);
 
   const canLaunchPato = (side) => {
     if (!currentGame) return false;
@@ -224,9 +203,8 @@ function ArenaContent() {
   const triggerFinishSequence = (winner) => {
     if (!currentGame) return;
 
-    // 1. Calculamos o que aconteceria com os sets se esse vencedor ganhar a rodada agora
     const nextSetsValue = winner === "left" ? setsLeft + 1 : setsRight + 1;
-    const isFinalVictory = nextSetsValue >= configGame.maxRounds;
+    const isFinalVictory = nextSetsValue >= setsNeededToWin;
 
     if (isFinalVictory) {
       finalizeGame(winner);
@@ -338,27 +316,7 @@ function ArenaContent() {
                 className="p-2 transition-colors tru-btn-icon"
                 title="Voltar"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="m15 18-6-6 6-6" />
-                </svg>
-              </Link>
-              <button
-                onClick={() => {
-                  setStartGame(true);
-                }}
-                className="p-2 transition-colors tru-btn-icon"
-              >
-                <svg
+<svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="20"
                   height="20"
@@ -372,15 +330,14 @@ function ArenaContent() {
                   <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                   <path d="M3 3v5h5" />
                 </svg>
-              </button>
-                            <button
+              </Link>
+              <button
                 onClick={() => isPortrait && setUseMirroredScore((prev) => !prev)}
                 disabled={!isPortrait}
-                className={`p-2 transition-colors tru-btn-icon ${
-                  !isPortrait
+                className={`p-2 transition-colors tru-btn-icon ${!isPortrait
                     ? "opacity-30 cursor-not-allowed"
                     : `active:scale-90 ${isMirrorActive ? "tru-accent-text" : ""}`
-                }`}
+                  }`}
                 title="Espelhar placar"
               >
                 <svg
@@ -403,13 +360,13 @@ function ArenaContent() {
 
             <div className="flex flex-col items-center gap-1">
               {!isMirrorActive &&
-              <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">
-                Rodadas
-              </span>
+                <span className="text-[10px] uppercase tracking-widest text-zinc-500 font-black">
+                  Rodadas
+                </span>
               }
               <div className={`flex shrink-0 origin-center items-center ${roundsGapClass} ${roundsScaleClass}`}>
                 <div className={`flex flex-row-reverse ${roundsDotGapClass}`}>
-                  {[...Array(configGame.maxRounds)].map((_, i) => (
+                  {[...Array(setsNeededToWin)].map((_, i) => (
                     <span
                       key={i}
                       className={`${roundsDotSizeClass} ${i < setsLeft ? "text-emerald-400" : "text-zinc-800"}`}
@@ -420,7 +377,7 @@ function ArenaContent() {
                 </div>
                 <div className="h-4 w-px bg-zinc-800"></div>
                 <div className={`flex ${roundsDotGapClass}`}>
-                  {[...Array(configGame.maxRounds)].map((_, i) => (
+                  {[...Array(setsNeededToWin)].map((_, i) => (
                     <span
                       key={i}
                       className={`${roundsDotSizeClass} ${i < setsRight ? "text-emerald-400" : "text-zinc-800"}`}
@@ -438,27 +395,6 @@ function ArenaContent() {
                 className="p-2 transition-colors active:scale-90 tru-btn-icon"
               >
                 -1
-              </button>
-              <button
-                onClick={toggleFullScreen}
-                className="p-2 transition-colors active:scale-90 tru-btn-icon"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M8 3H5a2 2 0 0 0-2 2v3" />
-                  <path d="M21 8V5a2 2 0 0 0-2-2h-3" />
-                  <path d="M3 16v3a2 2 0 0 0 2 2h3" />
-                  <path d="M16 21h3a2 2 0 0 0 2-2v-3" />
-                </svg>
               </button>
               <button
                 onClick={() => setShowConfig(true)}
@@ -531,26 +467,11 @@ function ArenaContent() {
             updateSettings(); // Atualiza o estado do App com o que foi salvo
           }}
         />
-        <MatchConfigModal
-          isOpen={startGame}
-          onStart={(matchConfig) => startMatch(matchConfig)}
-          handleInitGame={handleInitGame}
-          onClose={({ started } = {}) => {
-            if (!started && (!currentGame || currentGame.status === "finished")) {
-              startMatch(DEFAULT_MATCH_CONFIG);
-            }
-            setStartGame(false);
-          }}
-        />
       </div>
     </div>
   );
 }
 
 export default function Arena() {
-  return (
-    <Suspense>
-      <ArenaContent />
-    </Suspense>
-  );
+  return <ArenaContent />;
 }

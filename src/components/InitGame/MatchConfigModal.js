@@ -66,17 +66,41 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
                 <label className="text-[9px] uppercase font-black tracking-widest tru-muted-text ml-1 block">
                   {label}
                 </label>
-                <input
-                  type="text"
-                  value={value}
-                  onChange={(e) => setter(e.target.value)}
-                  placeholder={placeholder}
-                  className="w-full rounded-2xl px-3 py-3 text-xs font-bold tru-page-text placeholder:tru-muted-text outline-none transition-all"
-                  style={{
-                    backgroundColor: "color-mix(in srgb, var(--surface) 82%, transparent)",
-                    border: "1px solid var(--surface-border)",
-                  }}
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={value}
+                    onChange={(e) => setter(e.target.value)}
+                    placeholder={placeholder}
+                    className="w-full rounded-2xl px-3 py-3 pr-10 text-xs font-bold tru-page-text placeholder:tru-muted-text outline-none transition-all"
+                    style={{
+                      backgroundColor: "color-mix(in srgb, var(--surface) 82%, transparent)",
+                      border: "1px solid var(--surface-border)",
+                    }}
+                  />
+                  {value && (
+                    <button
+                      type="button"
+                      onClick={() => setter("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full tru-btn-ghost"
+                      aria-label={`Limpar ${label}`}
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

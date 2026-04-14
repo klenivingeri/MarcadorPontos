@@ -74,7 +74,7 @@ const ChampionModal = ({ winnerName, score, onRestart, configGame, durationLabel
             </div>
 
             <Link
-              href="/arena"
+              href="/"
               onClick={onRestart}
               className="block w-full tru-accent-bg tru-accent-bg-hover tru-on-accent py-3 rounded-xl font-black uppercase tracking-widest active:scale-95 transition-all tru-accent-shadow text-center"
             >

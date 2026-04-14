@@ -31,14 +31,27 @@ const DEFAULT_CONFIG = {
   colorMode: DEFAULT_COLOR_MODE,
 };
 
+const normalizeThemeByColorMode = (settings) => {
+  if (settings.colorMode === "dark" && settings.theme === "black") {
+    return { ...settings, theme: "white" };
+  }
+
+  if (settings.colorMode !== "dark" && settings.theme === "white") {
+    return { ...settings, theme: "black" };
+  }
+
+  return settings;
+};
+
 const ConfigModal = ({ isOpen, onClose }) => {
   const [config, setConfig] = useState(DEFAULT_CONFIG);
 
   useEffect(() => {
     const saved = loadStoredSettings();
     const merged = { ...DEFAULT_CONFIG, ...saved };
-    setConfig(merged);
-    applyAppearance(merged);
+    const normalized = normalizeThemeByColorMode(merged);
+    setConfig(normalized);
+    applyAppearance(normalized);
   }, [isOpen]);
 
   const [pixCopied, setPixCopied] = useState(false);
@@ -61,20 +74,32 @@ const ConfigModal = ({ isOpen, onClose }) => {
   };
 
   const handleSelectTheme = (theme) => {
-    const updated = { ...config, theme };
+    const updated = normalizeThemeByColorMode({ ...config, theme });
     setConfig(updated);
     applyAppearance(updated);
   };
 
   const handleColorModeToggle = () => {
-    const updated = {
+    const updated = normalizeThemeByColorMode({
       ...config,
       colorMode: config.colorMode === "light" ? "dark" : "light",
-    };
+    });
 
     setConfig(updated);
     applyAppearance(updated);
   };
+
+  const visibleThemeOptions = THEME_OPTIONS.filter((themeOption) => {
+    if (config.colorMode === "dark" && themeOption.id === "black") {
+      return false;
+    }
+
+    if (config.colorMode !== "dark" && themeOption.id === "white") {
+      return false;
+    }
+
+    return true;
+  });
 
   if (!isOpen) return null;
 
@@ -212,7 +237,7 @@ const ConfigModal = ({ isOpen, onClose }) => {
                   Tema
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {THEME_OPTIONS.map((themeOption) => {
+                  {visibleThemeOptions.map((themeOption) => {
                     const isActive = config.theme === themeOption.id;
 
                     return (

@@ -1,12 +1,42 @@
 "use client";
 import ConfigModal from "@/components/Menu/ConfigModal";
+import { useGame } from "@/context/GameContext";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import React, { useState } from "react"; // Importando a função que você já tem
+import React, { useEffect, useState } from "react";
 import { toggleFullScreen } from "./utils/toggleFullScreen";
 
 export default function Home() {
+  const router = useRouter();
+  const { currentGame, startGame: startMatch } = useGame();
   const [showConfig, setShowConfig] = useState(false);
-  // 4. Função que você passa para o onClose do Modal
+  const [teamLeft, setTeamLeft] = useState("");
+  const [teamRight, setTeamRight] = useState("");
+  const [rounds, setRounds] = useState(3);
+
+  useEffect(() => {
+    if (!currentGame) {
+      return;
+    }
+
+    if (!teamLeft) {
+      setTeamLeft(currentGame.teams?.[0]?.name || "");
+    }
+
+    if (!teamRight) {
+      setTeamRight(currentGame.teams?.[1]?.name || "");
+    }
+  }, [currentGame, teamLeft, teamRight]);
+
+  const handleStartMatch = () => {
+    startMatch({
+      teamLeft: teamLeft.trim() || "Time 1",
+      teamRight: teamRight.trim() || "Time 2",
+      maxRounds: rounds,
+    });
+    toggleFullScreen();
+    router.push("/arena");
+  };
 
   return (
     <div className="min-h-screen tru-page-bg tru-page-text font-sans">
@@ -72,6 +102,85 @@ export default function Home() {
             </div>
           </div>
 
+
+          <div className="pb-2 space-y-5">
+            <div className="relative grid grid-cols-2 gap-2">
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                <span className="tru-accent-text backdrop-blur-md  rounded-full px-2 py-0.5 text-md font-black tru-muted-text uppercase tracking-widest shadow-xl">
+                  VS
+                </span>
+              </div>
+
+              {[
+                { value: teamLeft, setter: setTeamLeft, placeholder: "Time 1" },
+                { value: teamRight, setter: setTeamRight, placeholder: "Time 2" },
+              ].map(({ value, setter, placeholder }, i) => (
+                <div key={i} className="space-y-1.5">
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={value}
+                      onChange={(e) => setter(e.target.value)}
+                      placeholder={placeholder}
+                      className="w-full rounded-2xl py-3 text-xs font-bold text-center tru-page-text placeholder:tru-muted-text outline-none transition-all border" 
+                      style={{
+                        backgroundColor: "color-mix(in srgb, var(--surface) 82%, transparent)",
+                        border: "1px solid var(--surface-border)",
+                      }}
+                    />
+                    {value && (
+                      <button
+                        type="button"
+                        onClick={() => setter("")}
+                        className={`absolute ${i === 0 ? "left-2" : "right-2"} top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full opacity-30`}
+                        aria-label={`Limpar ${placeholder}`}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M18 6 6 18" />
+                          <path d="m6 6 12 12" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-[9px] uppercase font-black tracking-widest tru-muted-text ml-1 block">
+                Melhor de
+              </label>
+              <div className="flex gap-2">
+                {[1, 3, 5, 7].map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setRounds(n)}
+                    className={`flex-1 py-3 rounded-2xl font-black text-sm transition-all border ${rounds === n
+                        ? "tru-btn-solid tru-accent-shadow"
+                        : "tru-btn-ghost"
+                      }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[9px] tru-muted-text text-center">
+                {rounds === 1 ? "1 set único" : `Melhor de ${rounds} sets`}
+              </p>
+            </div>
+          </div>
+
+
           {/* A Breve Descrição */}
           <p className="max-w-70 md:max-w-md text-zinc-400 text-sm md:text-base font-medium leading-relaxed uppercase tracking-tight">
             O marcador definitivo para quem busca{" "}
@@ -80,15 +189,15 @@ export default function Home() {
           </p>
 
           {/* Action Section */}
-          <Link
-            href="/arena?from=home"
-            onClick={() => toggleFullScreen() }
+          <button
+            type="button"
+            onClick={handleStartMatch}
             className="group relative px-12 py-6 bg-white text-black rounded-4xl font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all"
             style={{ boxShadow: "0 0 40px color-mix(in srgb, var(--tru-default) 20%, transparent)" }}
           >
             <span className="relative z-10">Iniciar Partida</span>
             <div className="absolute inset-0 tru-accent-bg rounded-4xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
-          </Link>
+          </button>
         </div>
 
         {/* INDICADOR DE SCROLL (TUTORIAL) */}
@@ -156,8 +265,8 @@ export default function Home() {
               <strong className="text-zinc-200">15 pontos</strong>. Ao atingir o
               limite, um novo Set começa automaticamente. Defina nas
               configurações partidas de{" "}
-              <strong className="text-zinc-300">3, 5 ou 7 Sets</strong> para
-              decidir quem realmente domina a jogo.
+              <strong className="text-zinc-300">melhor de 3, 5 ou 7</strong>:
+              vence quem fechar 2, 3 ou 4 sets, respectivamente.
             </p>
           </div>
 

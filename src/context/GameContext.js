@@ -5,6 +5,9 @@ import React, { createContext, useContext, useRef, useState } from "react";
 const GAME_HISTORY_STORAGE_KEY = "game_history";
 export const LAST_FINISHED_GAME_STORAGE_KEY = "last_finished_game";
 
+export const getRequiredSetsToWin = (maxRounds = 1) =>
+  Math.max(1, Math.ceil(maxRounds / 2));
+
 const GameContext = createContext(null);
 
 const createId = (prefix) => {

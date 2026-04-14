@@ -96,7 +96,7 @@ export default function ChampionPage() {
 
   const handleRestart = () => {
     clearCurrentGame();
-    router.replace("/arena");
+    router.replace("/");
   };
 
   return (
