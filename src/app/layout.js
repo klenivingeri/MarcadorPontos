@@ -1,9 +1,9 @@
 import { Inter, Roboto } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 import ServiceWorkerRegistry from "./ServiceWorkerRegistry";
 import { GameProvider } from "@/context/GameContext";
 import ThemeInitializer from "./ThemeInitializer";
+import CookieConsentManager from "@/components/CookieConsentManager";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -52,17 +52,12 @@ export default function RootLayout({ children }) {
       className={`${inter.variable} ${roboto.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5974398786569434"
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
         <GameProvider>
           <ThemeInitializer />
           <ServiceWorkerRegistry />
           {children}
         </GameProvider>
+        <CookieConsentManager />
       </body>
     </html>
   );

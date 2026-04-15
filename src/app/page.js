@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { toggleFullScreen } from "./utils/toggleFullScreen";
+import SiteFooter from "@/components/SiteFooter";
 
 const parseJSONSafely = (rawValue, fallbackValue) => {
   try {
@@ -527,10 +528,12 @@ export default function Home() {
           </div>
         </div>
 
-        <footer className="mt-24 text-center text-zinc-700 font-bold uppercase text-xs tracking-widest">
+        <footer className="mt-24 hidden text-center text-zinc-700 font-bold uppercase text-xs tracking-widest">
           Truco Arena © 2026 • Desenvolvido para campeões
         </footer>
       </section>
+
+      <SiteFooter />
 
       <ConfigModal
         isOpen={showConfig}
