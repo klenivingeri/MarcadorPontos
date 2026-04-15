@@ -334,4 +334,8 @@ body {
   .animate-slow-fade {
     animation: fadeIn 2s ease-out forwards;
   }
+
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
 }

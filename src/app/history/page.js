@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import React, { useEffect, useState, useMemo } from "react";
+import MatchSummaryModal from "@/components/History/MatchSummaryModal";
 
 const mapGameToHistoryView = (game) => {
   const leftTeam = game?.teams?.[0] || {
@@ -43,6 +44,8 @@ const HistoryPage = () => {
   const [history, setHistory] = useState([]);
   const [userSettings, setUserSettings] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedGame, setSelectedGame] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const savedHistory = JSON.parse(
@@ -124,6 +127,11 @@ const HistoryPage = () => {
       localStorage.setItem("game_history", JSON.stringify(updated));
       setHistory(updated);
     }
+  };
+
+  const openMatchSummary = (game) => {
+    setSelectedGame(game);
+    setIsModalOpen(true);
   };
 
   return (
@@ -252,7 +260,8 @@ const HistoryPage = () => {
             return (
               <div
                 key={game.id}
-                className={`relative bg-zinc-950 border-l-[6px] ${borderColor} rounded-[2.5rem] p-6 transition-all hover:bg-zinc-900 group`}
+                onClick={() => openMatchSummary(game.raw)}
+                className={`relative bg-zinc-950 border-l-[6px] ${borderColor} rounded-[2.5rem] p-6 transition-all hover:bg-zinc-900 group cursor-pointer`}
               >
                 <button
                   onClick={() => deleteEntry(game.id)}
@@ -333,6 +342,12 @@ const HistoryPage = () => {
           </p>
         </div>
       </main>
+
+      <MatchSummaryModal
+        game={selectedGame}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };
