@@ -1,12 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Script from "next/script";
 import Link from "next/link";
 
 const CONSENT_KEY = "truco_cookie_consent";
-const AD_CLIENT_ID = "ca-pub-5974398786569434";
-
 const readConsent = () => {
   if (typeof window === "undefined") {
     return "unknown";
@@ -33,21 +30,10 @@ export default function CookieConsentManager() {
     window.localStorage.setItem(CONSENT_KEY, value);
     setConsent(value);
   };
-
-  const isAccepted = consent === "accepted";
   const showBanner = consent === "unknown";
 
   return (
     <>
-      {isAccepted && (
-        <Script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${AD_CLIENT_ID}`}
-          crossOrigin="anonymous"
-          strategy="afterInteractive"
-        />
-      )}
-
       {showBanner && (
         <div className="fixed inset-x-0 bottom-0 z-50 p-3 sm:p-4">
           <div className="mx-auto flex max-w-5xl flex-col gap-4 rounded-[1.75rem] border border-white/10 bg-black/85 px-4 py-4 shadow-2xl backdrop-blur-md sm:flex-row sm:items-center sm:justify-between sm:px-5">

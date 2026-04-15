@@ -51,6 +51,13 @@ export default function RootLayout({ children }) {
       lang="pt"
       className={`${inter.variable} ${roboto.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5974398786569434"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <GameProvider>
           <ThemeInitializer />
