@@ -1,9 +1,9 @@
 "use client";
 
 import React, { startTransition, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ChampionModal from "@/components/Winner/ChampionModal";
+import ResponsiveAdsenseFrame from "@/components/Adsense/ResponsiveAdsenseFrame";
 import {
   LAST_FINISHED_GAME_STORAGE_KEY,
   useGame,
@@ -100,36 +100,35 @@ export default function ChampionPage() {
   };
 
   return (
-    <div
-      className="min-h-screen animate-slow-fade tru-page-bg tru-page-text"
-      style={{
-        backgroundImage: settings.bgUrl ? `url("${settings.bgUrl}")` : "none",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+    <ResponsiveAdsenseFrame
+      className="animate-slow-fade tru-page-bg tru-page-text"
+      portrait={{
+        top: process.env.NEXT_PUBLIC_ADSENSE_CHAMPION_PORTRAIT_TOP,
+        bottom: process.env.NEXT_PUBLIC_ADSENSE_CHAMPION_PORTRAIT_BOTTOM,
+      }}
+      landscape={{
+        left: process.env.NEXT_PUBLIC_ADSENSE_CHAMPION_LANDSCAPE_LEFT,
+        right: process.env.NEXT_PUBLIC_ADSENSE_CHAMPION_LANDSCAPE_RIGHT,
       }}
     >
-      <div className="relative min-h-screen flex items-center justify-center tru-overlay-bg px-4 py-5">
-        <Link
-          href="/"
-          className="fixed top-5 left-4 rounded-2xl tru-surface backdrop-blur-md border shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-(--text-muted) transition-colors hover:text-foreground z-10"
-        >
-          Início
-        </Link>
-        <Link
-          href="/history"
-          className="fixed top-5 right-4 rounded-2xl tru-surface backdrop-blur-md border shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-(--text-muted) transition-colors hover:text-foreground z-10"
-        >
-          Histórico
-        </Link>
-
-        <ChampionModal
-          winnerName={winnerTeam.name}
-          score={score}
-          configGame={{ maxRounds: finishedGame.maxRounds }}
-          durationLabel={formatDuration(finishedGame.startTime, finishedGame.endTime)}
+      <div
+        className="h-full animate-slow-fade tru-page-bg tru-page-text"
+        style={{
+          backgroundImage: settings.bgUrl ? `url("${settings.bgUrl}")` : "none",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        <div className="relative h-full flex items-center justify-center tru-overlay-bg px-4 py-5 overflow-hidden">
+          <ChampionModal
+            winnerName={winnerTeam.name}
+            score={score}
+            configGame={{ maxRounds: finishedGame.maxRounds }}
+            durationLabel={formatDuration(finishedGame.startTime, finishedGame.endTime)}
           onRestart={handleRestart}
         />
       </div>
     </div>
+    </ResponsiveAdsenseFrame>
   );
 }

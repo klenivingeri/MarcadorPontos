@@ -1,11 +1,11 @@
 "use client";
 
 import React, { Suspense, startTransition, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Confetti from "react-confetti-boom";
 import { colors_from_image } from "@/constants/colors";
 import { useGame } from "@/context/GameContext";
+import ResponsiveAdsenseFrame from "@/components/Adsense/ResponsiveAdsenseFrame";
 
 const INIT_GAME_COUNTDOWN = 7;
 const DEFAULT_SETTINGS = {
@@ -104,29 +104,27 @@ function RoundFinishContent() {
 
   return (
     <>
+    <ResponsiveAdsenseFrame
+      className="animate-slow-fade tru-page-bg tru-page-text"
+        portrait={{
+          top: process.env.NEXT_PUBLIC_ADSENSE_ROUND_FINISH_PORTRAIT_TOP,
+          bottom: process.env.NEXT_PUBLIC_ADSENSE_ROUND_FINISH_PORTRAIT_BOTTOM,
+        }}
+        landscape={{
+          left: process.env.NEXT_PUBLIC_ADSENSE_ROUND_FINISH_LANDSCAPE_LEFT,
+          right: process.env.NEXT_PUBLIC_ADSENSE_ROUND_FINISH_LANDSCAPE_RIGHT,
+        }}
+      >
     <div
-      className="min-h-screen animate-slow-fade tru-page-bg tru-page-text"
+      className="h-full animate-slow-fade tru-page-bg tru-page-text"
       style={{
         backgroundImage: settings.bgUrl ? `url("${settings.bgUrl}")` : "none",
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="relative min-h-screen flex items-center justify-center tru-overlay-bg px-4 py-5 text-center">
-        <Link
-          href="/"
-          className="fixed top-5 left-4 rounded-2xl tru-surface backdrop-blur-md border shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-(--text-muted) transition-colors hover:text-foreground z-10"
-        >
-          Início
-        </Link>
-        <Link
-          href="/arena"
-          className="fixed top-5 right-4 rounded-2xl tru-surface backdrop-blur-md border shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-(--text-muted) transition-colors hover:text-foreground z-10"
-        >
-          Arena
-        </Link>
-
-        <div className="w-[84vw] max-w-xs sm:max-w-sm md:w-[52vw] lg:w-[40vw] xl:w-[34vw] animate-slow-fade rounded-4xl tru-surface tru-page-text backdrop-blur-md border shadow-xl overflow-hidden">
+        <div className="relative h-full flex items-center justify-center tru-overlay-bg px-4 py-5 text-center overflow-hidden">
+          <div className="w-[84vw] max-w-xs sm:max-w-sm md:w-[52vw] lg:w-[40vw] xl:w-[34vw] animate-slow-fade rounded-4xl tru-surface tru-page-text backdrop-blur-md border shadow-xl overflow-hidden">
           <div className="absolute inset-0 pointer-events-none" />
           
 
@@ -196,6 +194,7 @@ function RoundFinishContent() {
         </div>
       </div>
     </div>
+      </ResponsiveAdsenseFrame>
     <Confetti mode="boom" shapeSize={15} colors={colors_from_image} />
     </>
   );
