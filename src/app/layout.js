@@ -4,16 +4,18 @@ import ServiceWorkerRegistry from "./ServiceWorkerRegistry";
 import { GameProvider } from "@/context/GameContext";
 import ThemeInitializer from "./ThemeInitializer";
 import CookieConsentManager from "@/components/CookieConsentManager";
+import { cookies } from "next/headers";
+import { COOKIE_CONSENT_KEY } from "@/lib/consent";
 
 const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500","600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-inter",
 });
 
 const roboto = Roboto({
   subsets: ["latin"],
-  weight: ["400", "500","600", "700", "800", "900"],
+  weight: ["400", "500", "600", "700", "800", "900"],
   variable: "--font-roboto",
 });
 
@@ -26,7 +28,7 @@ export const metadata = {
   icons: {
     apple: [
       {
-        url: "logo.png", 
+        url: "logo.png",
         sizes: "180x180",
         type: "image/png",
       },
@@ -45,7 +47,10 @@ export const viewport = {
   userScalable: "no",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const cookieStore = await cookies();
+  const initialConsent = cookieStore.get(COOKIE_CONSENT_KEY)?.value || "unknown";
+
   return (
     <html
       lang="pt"
@@ -64,7 +69,7 @@ export default function RootLayout({ children }) {
           <ServiceWorkerRegistry />
           {children}
         </GameProvider>
-        <CookieConsentManager />
+        <CookieConsentManager initialConsent={initialConsent} />
       </body>
     </html>
   );
