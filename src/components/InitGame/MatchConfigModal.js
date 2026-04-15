@@ -72,7 +72,7 @@ const MatchConfigModal = ({ isOpen, onClose, onStart, handleInitGame }) => {
                     value={value}
                     onChange={(e) => setter(e.target.value)}
                     placeholder={placeholder}
-                    className="w-full rounded-2xl px-3 py-3 pr-10 text-xs font-bold tru-page-text placeholder:tru-muted-text outline-none transition-all"
+                    className="w-full rounded-2xl px-3 py-3 pr-10 text-xs font-bold tru-page-text placeholder:text-(--text-muted) outline-none transition-all"
                     style={{
                       backgroundColor: "color-mix(in srgb, var(--surface) 82%, transparent)",
                       border: "1px solid var(--surface-border)",

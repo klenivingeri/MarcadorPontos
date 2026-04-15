@@ -115,23 +115,23 @@ function RoundFinishContent() {
       <div className="relative min-h-screen flex items-center justify-center tru-overlay-bg px-4 py-5 text-center">
         <Link
           href="/"
-          className="fixed top-5 left-4 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300 transition-colors hover:text-white z-10"
+          className="fixed top-5 left-4 rounded-2xl tru-surface backdrop-blur-md border shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-(--text-muted) transition-colors hover:text-foreground z-10"
         >
           Início
         </Link>
         <Link
           href="/arena"
-          className="fixed top-5 right-4 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300 transition-colors hover:text-white z-10"
+          className="fixed top-5 right-4 rounded-2xl tru-surface backdrop-blur-md border shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-(--text-muted) transition-colors hover:text-foreground z-10"
         >
           Arena
         </Link>
 
-        <div className="w-[84vw] max-w-xs sm:max-w-sm md:w-[52vw] lg:w-[40vw] xl:w-[34vw] animate-slow-fade rounded-4xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl overflow-hidden">
+        <div className="w-[84vw] max-w-xs sm:max-w-sm md:w-[52vw] lg:w-[40vw] xl:w-[34vw] animate-slow-fade rounded-4xl tru-surface tru-page-text backdrop-blur-md border shadow-xl overflow-hidden">
           <div className="absolute inset-0 pointer-events-none" />
           
 
           <div className="relative p-5 sm:p-6">
-            <h2 className="text-zinc-500 font-black text-xs uppercase mb-2 tracking-[0.35em]">
+            <h2 className="tru-muted-text font-black text-xs uppercase mb-2 tracking-[0.35em]">
               Fim da Rodada
             </h2>
 
@@ -140,7 +140,7 @@ function RoundFinishContent() {
             </div>
 
             <div className="relative h-16 w-16 mx-auto mb-5 flex items-center justify-center">
-              <span className="text-2xl font-black text-white">{countdown}</span>
+              <span className="text-2xl font-black tru-page-text">{countdown}</span>
               <svg
                 className="absolute inset-0 w-full h-full -rotate-90"
                 viewBox="0 0 80 80"
@@ -152,7 +152,7 @@ function RoundFinishContent() {
                   stroke="currentColor"
                   strokeWidth="6"
                   fill="transparent"
-                  className="text-zinc-800"
+                  className="text-(--surface-border)"
                 />
                 <circle
                   cx="40"
@@ -170,8 +170,14 @@ function RoundFinishContent() {
               </svg>
             </div>
 
-            <div className="bg-zinc-950/80 border border-zinc-800 py-3 px-4 rounded-xl mb-3 shadow-inner">
-              <p className="text-zinc-400 text-[11px] font-mono uppercase tracking-tight flex items-center justify-center gap-1.5">
+            <div
+              className="py-3 px-4 rounded-xl mb-3 shadow-inner border"
+              style={{
+                backgroundColor: "color-mix(in srgb, var(--surface) 92%, transparent)",
+                borderColor: "var(--surface-border)",
+              }}
+            >
+              <p className="tru-muted-text text-[11px] font-mono uppercase tracking-tight flex items-center justify-center gap-1.5">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full tru-progress-bg opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 tru-accent-bg"></span>

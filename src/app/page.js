@@ -1,10 +1,62 @@
 "use client";
 import ConfigModal from "@/components/Menu/ConfigModal";
-import { useGame } from "@/context/GameContext";
+import {
+  getXpProgression,
+  readXpProfile,
+  useGame,
+} from "@/context/GameContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { toggleFullScreen } from "./utils/toggleFullScreen";
+
+const parseJSONSafely = (rawValue, fallbackValue) => {
+  try {
+    return rawValue ? JSON.parse(rawValue) : fallbackValue;
+  } catch {
+    return fallbackValue;
+  }
+};
+
+const calculateHudProgress = (identifier, historyEntries) => {
+  const normalizedIdentifier = (identifier || "").trim().toLowerCase();
+
+  if (!normalizedIdentifier) {
+    return { totalXp: 0, level: 1, progressXp: 0, progressPercent: 0 };
+  }
+
+  const totalXp = historyEntries.reduce((accumulator, game) => {
+    const leftName = game?.teams?.[0]?.name?.toLowerCase() || "";
+    const rightName = game?.teams?.[1]?.name?.toLowerCase() || "";
+    const leftSets = Number(game?.teams?.[0]?.setsWon || 0);
+    const rightSets = Number(game?.teams?.[1]?.setsWon || 0);
+    const inMatch =
+      leftName.includes(normalizedIdentifier) ||
+      rightName.includes(normalizedIdentifier);
+
+    if (!inMatch) {
+      return accumulator;
+    }
+
+    const didWin =
+      (leftName.includes(normalizedIdentifier) && leftSets >= rightSets) ||
+      (rightName.includes(normalizedIdentifier) && rightSets >= leftSets);
+
+    const baseMatchXp = 40;
+    const winBonusXp = didWin ? 30 : 0;
+    return accumulator + baseMatchXp + winBonusXp;
+  }, 0);
+
+  const progression = getXpProgression(totalXp);
+
+  return {
+    totalXp,
+    level: progression.level,
+    progressXp: progression.currentLevelXp,
+    nextLevelXp: progression.nextLevelXp,
+    progressPercent: progression.progressPercent,
+  };
+};
 
 export default function Home() {
   const router = useRouter();
@@ -12,21 +64,67 @@ export default function Home() {
   const [showConfig, setShowConfig] = useState(false);
   const [teamLeft, setTeamLeft] = useState("");
   const [teamRight, setTeamRight] = useState("");
+  const [hasEditedTeams, setHasEditedTeams] = useState(false);
   const [rounds, setRounds] = useState(3);
+  const [hud, setHud] = useState({
+    playerName: "Jogador",
+    level: 1,
+    progressXp: 0,
+    nextLevelXp: 100,
+    progressPercent: 0,
+  });
 
   useEffect(() => {
-    if (!currentGame) {
+    const syncHud = () => {
+      const settings = parseJSONSafely(
+        localStorage.getItem("truscore_settings"),
+        {},
+      );
+      const historyEntries = parseJSONSafely(
+        localStorage.getItem("game_history"),
+        [],
+      );
+      const playerName = settings?.groupName?.trim() || "Jogador";
+      const xpProfile = readXpProfile();
+      const xpProgression = getXpProgression(xpProfile.totalXp);
+      const fallbackProgress = calculateHudProgress(playerName, historyEntries);
+      const hasTrackedXp = xpProfile.totalXp > 0;
+
+      setHud({
+        playerName,
+        level: hasTrackedXp ? xpProgression.level : fallbackProgress.level,
+        progressXp: hasTrackedXp
+          ? xpProgression.currentLevelXp
+          : fallbackProgress.progressXp,
+        nextLevelXp: hasTrackedXp
+          ? xpProgression.nextLevelXp
+          : fallbackProgress.nextLevelXp,
+        progressPercent: hasTrackedXp
+          ? xpProgression.progressPercent
+          : fallbackProgress.progressPercent,
+      });
+    };
+
+    syncHud();
+    window.addEventListener("storage", syncHud);
+
+    return () => {
+      window.removeEventListener("storage", syncHud);
+    };
+  }, []);
+
+  useEffect(() => {
+    setHasEditedTeams(false);
+  }, [currentGame?.id]);
+
+  useEffect(() => {
+    if (!currentGame || hasEditedTeams) {
       return;
     }
 
-    if (!teamLeft) {
-      setTeamLeft(currentGame.teams?.[0]?.name || "");
-    }
-
-    if (!teamRight) {
-      setTeamRight(currentGame.teams?.[1]?.name || "");
-    }
-  }, [currentGame, teamLeft, teamRight]);
+    setTeamLeft(currentGame.teams?.[0]?.name || "");
+    setTeamRight(currentGame.teams?.[1]?.name || "");
+  }, [currentGame, hasEditedTeams]);
 
   const handleStartMatch = () => {
     startMatch({
@@ -43,10 +141,42 @@ export default function Home() {
       {/* SEÇÃO PRINCIPAL (FULL SCREEN) */}
       <section className="h-screen w-full flex flex-col items-center justify-between p-6 relative overflow-hidden">
         {/* HEADER SUPERIOR */}
-        <header className="w-full max-w-5xl flex justify-between items-center z-10">
-          <Link
+        <header className="w-full max-w-5xl flex justify-between items-stretch z-10">
+          <div className="w-full  h-14 mr-2 rounded-2xl px-3 py-1">
+            <div className="flex items-center gap-3">
+              <div
+                id="level"
+                className="h-10 min-w-10 px-2 rounded-xl flex items-center justify-center font-black text-sm tru-btn-solid"
+              >
+                {hud.level}
+              </div>
+              <div className="w-full">
+                <div
+                  id="Name"
+                  className="text-xs font-black uppercase tracking-wider truncate"
+                >
+                  {hud.playerName}
+                </div>
+                <div className="mt-1.5">
+                  <div className="h-2 w-full rounded-full bg-white/10 overflow-hidden tru-btn-ghost">
+                    <div
+                      id="progress"
+                      className="h-full tru-progress-bg transition-all duration-500"
+                      style={{ width: `${hud.progressPercent}%` }}
+                    />
+                  </div>
+                  <p className="mt-1 text-[9px] tru-muted-text  uppercase tracking-wider">
+                    {hud.progressXp}/{hud.nextLevelXp} XP
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="h-14 flex items-center gap-2 whitespace-nowrap">
+            <Link
             href="/history"
-            className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-all active:scale-90"
+            className="h-full p-4 rounded-2xl transition-all active:scale-90 tru-btn-ghost"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -65,26 +195,28 @@ export default function Home() {
               <path d="M8 17v-3" />
             </svg>
           </Link>
-
-          <button
-            onClick={() => setShowConfig(true)}
-            className="p-4 rounded-2xl transition-all active:scale-90 tru-btn-ghost"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+                        <button
+              onClick={() => setShowConfig(true)}
+              className="h-full p-4 rounded-2xl transition-all active:scale-90 tru-btn-ghost"
             >
-              <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
-              <circle cx="12" cy="12" r="3" />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+
+
         </header>
 
         {/* CONTEÚDO CENTRAL */}
@@ -104,9 +236,13 @@ export default function Home() {
 
 
           <div className="pb-2 space-y-5">
-            <div className="relative grid grid-cols-2 gap-2">
+            <div className="relative grid grid-cols-2 gap-2 border rounded-2xl"
+              style={{
+                backgroundColor: "color-mix(in srgb, var(--surface) 82%, transparent)",
+                border: "1px solid var(--surface-border)",
+              }}>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                <span className="tru-accent-text backdrop-blur-md  rounded-full px-2 py-0.5 text-md font-black tru-muted-text uppercase tracking-widest shadow-xl">
+                <span className="tru-accent-text backdrop-blur-md  rounded-full px-2 py-0.5 text-md font-black tru-muted-text uppercase tracking-widest">
                   VS
                 </span>
               </div>
@@ -120,18 +256,20 @@ export default function Home() {
                     <input
                       type="text"
                       value={value}
-                      onChange={(e) => setter(e.target.value)}
-                      placeholder={placeholder}
-                      className="w-full rounded-2xl py-3 text-xs font-bold text-center tru-page-text placeholder:tru-muted-text outline-none transition-all border" 
-                      style={{
-                        backgroundColor: "color-mix(in srgb, var(--surface) 82%, transparent)",
-                        border: "1px solid var(--surface-border)",
+                      onChange={(e) => {
+                        setHasEditedTeams(true);
+                        setter(e.target.value);
                       }}
+                      placeholder={placeholder}
+                      className="w-full rounded-2xl py-3 text-xs font-bold text-center outline-none transition-all text-foreground placeholder:text-(--text-muted)"
                     />
                     {value && (
                       <button
                         type="button"
-                        onClick={() => setter("")}
+                        onClick={() => {
+                          setHasEditedTeams(true);
+                          setter("");
+                        }}
                         className={`absolute ${i === 0 ? "left-2" : "right-2"} top-1/2 -translate-y-1/2 flex h-7 w-7 items-center justify-center rounded-full opacity-30`}
                         aria-label={`Limpar ${placeholder}`}
                       >
@@ -161,13 +299,13 @@ export default function Home() {
                 Melhor de
               </label>
               <div className="flex gap-2">
-                {[1, 3, 5, 7].map((n) => (
+                {[1, 3, 5].map((n) => (
                   <button
                     key={n}
                     onClick={() => setRounds(n)}
                     className={`flex-1 py-3 rounded-2xl font-black text-sm transition-all border ${rounds === n
-                        ? "tru-btn-solid tru-accent-shadow"
-                        : "tru-btn-ghost"
+                      ? "tru-btn-solid"
+                      : "tru-btn-ghost"
                       }`}
                   >
                     {n}
@@ -192,11 +330,9 @@ export default function Home() {
           <button
             type="button"
             onClick={handleStartMatch}
-            className="group relative px-12 py-6 bg-white text-black rounded-4xl font-black text-2xl uppercase italic hover:scale-105 active:scale-95 transition-all"
-            style={{ boxShadow: "0 0 40px color-mix(in srgb, var(--tru-default) 20%, transparent)" }}
+            className="px-12 py-6 bg-white text-black rounded-4xl font-black text-xl tracking-[0.08em] uppercase italic hover:scale-105 active:scale-95 transition-all"
           >
-            <span className="relative z-10">Iniciar Partida</span>
-            <div className="absolute inset-0 tru-accent-bg rounded-4xl blur-xl opacity-0 group-hover:opacity-20 transition-opacity"></div>
+            Iniciar Partida
           </button>
         </div>
 

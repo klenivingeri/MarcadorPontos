@@ -20,6 +20,11 @@
   --tru-danger: #B43A30;
   --tru-danger-strong: #8F2C25;
   --tru-on-accent: #0b0b0b;
+  --tru-solid-bg: var(--tru-default);
+  --tru-solid-bg-hover: var(--tru-hover);
+  --tru-solid-bg-active: var(--tru-pressed);
+  --tru-solid-border: color-mix(in srgb, var(--tru-default) 65%, #000000 35%);
+  --tru-solid-text: var(--tru-on-accent);
 }
 
 @theme inline {
@@ -131,7 +136,8 @@ body {
   --tru-focus: #000000;
   --tru-pressed: #000000;
   --tru-disabled: #AAAAAA;
-  --tru-progress: #4D4D4D; 
+  --tru-progress: #4D4D4D;
+  --tru-on-accent: #F5F5F5;
 }
 
 :root[data-theme="ninja"] {
@@ -151,6 +157,14 @@ body {
   --tru-disabled: #E5E7EB;
   --tru-progress: #D4D4D8;
   --tru-on-accent: #111111;
+}
+
+:root[data-theme="white"][data-color-mode="dark"] {
+  --tru-solid-bg: #ffffff;
+  --tru-solid-bg-hover: #f5f5f5;
+  --tru-solid-bg-active: #e4e4e7;
+  --tru-solid-border: rgba(255, 255, 255, 0.78);
+  --tru-solid-text: #111111;
 }
 
 
@@ -173,20 +187,33 @@ body {
   }
 
   .tru-btn-solid {
-    background-color: var(--tru-default);
-    border: 1px solid color-mix(in srgb, var(--tru-default) 65%, #000000 35%);
-    color: var(--tru-on-accent);
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: var(--tru-solid-bg);
+    border: 1px solid var(--tru-solid-border);
+    color: var(--tru-solid-text);
+    -webkit-text-fill-color: var(--tru-solid-text);
   }
 
   .tru-btn-solid:hover {
-    background-color: var(--tru-hover);
+    background-color: var(--tru-solid-bg-hover);
   }
 
   .tru-btn-solid:active {
-    background-color: var(--tru-pressed);
+    background-color: var(--tru-solid-bg-active);
+  }
+
+  .tru-btn-solid:focus,
+  .tru-btn-solid:focus-visible,
+  .tru-btn-solid:visited {
+    background-color: var(--tru-solid-bg);
+    color: var(--tru-solid-text);
+    -webkit-text-fill-color: var(--tru-solid-text);
   }
 
   .tru-btn-ghost {
+    appearance: none;
+    -webkit-appearance: none;
     background-color: color-mix(in srgb, var(--tru-default) 12%, transparent);
     border: 1px solid color-mix(in srgb, var(--tru-default) 34%, transparent);
     color: color-mix(in srgb, var(--foreground) 88%, var(--tru-default) 12%);

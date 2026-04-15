@@ -9,7 +9,7 @@ const ChampionModal = ({ winnerName, score, onRestart, configGame, durationLabel
 
   return (
     <>
-    <div className="relative w-full max-w-sm landscape:max-w-xl animate-slow-fade overflow-hidden rounded-4xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl"
+    <div className="relative w-full max-w-sm landscape:max-w-xl animate-slow-fade overflow-hidden rounded-4xl tru-surface tru-page-text backdrop-blur-md border shadow-xl"
       style={{ backgroundImage: "radial-gradient(circle at top, color-mix(in srgb, var(--tru-default) 28%, transparent), transparent 70%)" }}>
       <div className="absolute inset-x-0 top-0 h-40 pointer-events-none" />
       <div className="relative p-4 overflow-hidden">
@@ -20,21 +20,21 @@ const ChampionModal = ({ winnerName, score, onRestart, configGame, durationLabel
               <span className="inline-block px-3 py-1 border rounded-full text-[9px] font-black uppercase tracking-[0.2em] mb-2 tru-accent-badge">
                 Partida Finalizada
               </span>
-              <h2 className="text-zinc-400 font-black text-xs uppercase tracking-[0.35em]">
+              <h2 className="tru-muted-text font-black text-xs uppercase tracking-[0.35em]">
                 Grande Campeão
               </h2>
             </header>
 
             <div className="mb-3">
-              <div className="text-3xl landscape:text-4xl font-black text-white uppercase italic leading-tight wrap-break-word">
+              <div className="text-3xl landscape:text-4xl font-black tru-page-text uppercase italic leading-tight wrap-break-word">
                 {winnerName}
               </div>
               <div className="flex items-center justify-center gap-3 mt-2">
-                <div className="h-px w-8 bg-white/10" />
-                <span className="text-zinc-300 font-bold text-xs tracking-[0.2em] uppercase">
-                  Sets <span className="text-white">{score.left} - {score.right}</span>
+                <div className="h-px w-8" style={{ backgroundColor: "var(--surface-border)" }} />
+                <span className="tru-muted-text font-bold text-xs tracking-[0.2em] uppercase">
+                  Sets <span className="tru-page-text">{score.left} - {score.right}</span>
                 </span>
-                <div className="h-px w-8 bg-white/10" />
+                <div className="h-px w-8" style={{ backgroundColor: "var(--surface-border)" }} />
               </div>
             </div>
 
@@ -55,19 +55,31 @@ const ChampionModal = ({ winnerName, score, onRestart, configGame, durationLabel
 
           <div className="landscape:flex-1 landscape:flex landscape:flex-col landscape:gap-3">
             <div className="grid grid-cols-2 gap-2 text-left mb-3 landscape:mb-0">
-              <div className="rounded-2xl bg-black/30 backdrop-blur-md border border-white/10 p-3 shadow-xl">
-                <span className="block text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 mb-1">
+              <div
+                className="rounded-2xl backdrop-blur-md border p-3 shadow-xl"
+                style={{
+                  backgroundColor: "color-mix(in srgb, var(--surface) 90%, transparent)",
+                  borderColor: "var(--surface-border)",
+                }}
+              >
+                <span className="block text-[10px] font-black uppercase tracking-[0.25em] tru-muted-text mb-1">
                   Formato
                 </span>
-                <span className="block text-base font-black text-white uppercase">
+                <span className="block text-base font-black tru-page-text uppercase">
                   Melhor de {totalSets}
                 </span>
               </div>
-              <div className="rounded-2xl bg-black/30 backdrop-blur-md border border-white/10 p-3 shadow-xl">
-                <span className="block text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 mb-1">
+              <div
+                className="rounded-2xl backdrop-blur-md border p-3 shadow-xl"
+                style={{
+                  backgroundColor: "color-mix(in srgb, var(--surface) 90%, transparent)",
+                  borderColor: "var(--surface-border)",
+                }}
+              >
+                <span className="block text-[10px] font-black uppercase tracking-[0.25em] tru-muted-text mb-1">
                   Tempo
                 </span>
-                <span className="block text-base font-black text-white uppercase">
+                <span className="block text-base font-black tru-page-text uppercase">
                   {durationLabel}
                 </span>
               </div>

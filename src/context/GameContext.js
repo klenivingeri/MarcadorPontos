@@ -1,12 +1,154 @@
 "use client";
 
 import React, { createContext, useContext, useRef, useState } from "react";
+import {
+  getPointXpReward,
+  getSetXpReward,
+  XP_LEVEL_BASE,
+  XP_LEVEL_EXPONENT,
+  XP_MATCH_WIN_BONUS,
+  XP_POINT_REWARDS,
+} from "@/constants/xp";
 
 const GAME_HISTORY_STORAGE_KEY = "game_history";
+export const XP_PROFILE_STORAGE_KEY = "truscore_xp_profile";
+const SETTINGS_STORAGE_KEY = "truscore_settings";
 export const LAST_FINISHED_GAME_STORAGE_KEY = "last_finished_game";
+
+const DEFAULT_XP_PROFILE = {
+  totalXp: 0,
+  updatedAt: null,
+  lastAward: null,
+};
 
 export const getRequiredSetsToWin = (maxRounds = 1) =>
   Math.max(1, Math.ceil(maxRounds / 2));
+
+export const getXpRequiredForLevel = (level = 1) =>
+  Math.max(XP_LEVEL_BASE, Math.round(XP_LEVEL_BASE * Math.pow(level, XP_LEVEL_EXPONENT)));
+
+export const getXpProgression = (totalXp = 0) => {
+  const safeTotalXp = Math.max(0, Number(totalXp) || 0);
+  let level = 1;
+  let remainingXp = safeTotalXp;
+  let nextLevelXp = getXpRequiredForLevel(level);
+
+  while (remainingXp >= nextLevelXp) {
+    remainingXp -= nextLevelXp;
+    level += 1;
+    nextLevelXp = getXpRequiredForLevel(level);
+  }
+
+  const progressPercent = Math.min(
+    100,
+    Math.round((remainingXp / nextLevelXp) * 100),
+  );
+
+  return {
+    level,
+    currentLevelXp: remainingXp,
+    nextLevelXp,
+    progressPercent,
+  };
+};
+
+const parseJSONSafely = (rawValue, fallbackValue) => {
+  try {
+    return rawValue ? JSON.parse(rawValue) : fallbackValue;
+  } catch {
+    return fallbackValue;
+  }
+};
+
+const normalizeIdentifier = (value) => (value || "").trim().toLowerCase();
+
+const getStoredIdentifier = () => {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const settings = parseJSONSafely(localStorage.getItem(SETTINGS_STORAGE_KEY), {});
+  return normalizeIdentifier(settings?.groupName);
+};
+
+const doesTeamMatchIdentifier = (teamName, identifier) => {
+  const normalizedTeamName = normalizeIdentifier(teamName);
+
+  if (!identifier || !normalizedTeamName) {
+    return false;
+  }
+
+  return normalizedTeamName.includes(identifier);
+};
+
+const shouldRewardSide = (game, side) => {
+  const identifier = getStoredIdentifier();
+
+  if (!identifier || !game?.teams?.length) {
+    return false;
+  }
+
+  const sideIndex = side === "left" ? 0 : 1;
+  const sideTeamName = game.teams[sideIndex]?.name;
+  return doesTeamMatchIdentifier(sideTeamName, identifier);
+};
+
+export const readXpProfile = () => {
+  if (typeof window === "undefined") {
+    return DEFAULT_XP_PROFILE;
+  }
+
+  const savedProfile = parseJSONSafely(
+    localStorage.getItem(XP_PROFILE_STORAGE_KEY),
+    DEFAULT_XP_PROFILE,
+  );
+
+  return {
+    ...DEFAULT_XP_PROFILE,
+    ...savedProfile,
+    totalXp: Math.max(0, Number(savedProfile?.totalXp) || 0),
+  };
+};
+
+const saveXpProfile = (profile) => {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  localStorage.setItem(XP_PROFILE_STORAGE_KEY, JSON.stringify(profile));
+  window.dispatchEvent(new Event("storage"));
+};
+
+const awardXp = (amount, reason) => {
+  const safeAmount = Number(amount) || 0;
+
+  if (safeAmount === 0) {
+    return readXpProfile();
+  }
+
+  const currentProfile = readXpProfile();
+  const nextProfile = {
+    ...currentProfile,
+    totalXp: Math.max(0, currentProfile.totalXp + safeAmount),
+    updatedAt: Date.now(),
+    lastAward: {
+      reason,
+      amount: safeAmount,
+      at: Date.now(),
+    },
+  };
+
+  saveXpProfile(nextProfile);
+  return nextProfile;
+};
+
+const getStreakXpBonus = (streak) => {
+  if (streak < 3) {
+    return 0;
+  }
+
+  return Math.min(20, Math.floor(streak / 2));
+};
 
 const GameContext = createContext(null);
 
@@ -133,6 +275,12 @@ export function GameProvider({ children }) {
       [defendingSide]: 0,
     };
 
+    if (shouldRewardSide(game, side)) {
+      const pointReward = getPointXpReward(value);
+      const streakBonus = getStreakXpBonus(currentSequenceRef.current[scoringSide]);
+      awardXp(pointReward + streakBonus, "point");
+    }
+
     const nextGame = {
       ...game,
       teams: game.teams.map((team, index) => {
@@ -171,6 +319,10 @@ export function GameProvider({ children }) {
 
     currentSequenceRef.current = { left: 0, right: 0 };
 
+    if (shouldRewardSide(game, side)) {
+      awardXp(-XP_POINT_REWARDS[1], "point_revert");
+    }
+
     const targetIndex = side === "left" ? 0 : 1;
     const nextGame = {
       ...game,
@@ -193,6 +345,11 @@ export function GameProvider({ children }) {
   const completeSet = (winnerSide) => {
     const game = currentGameRef.current;
     currentSequenceRef.current = { left: 0, right: 0 };
+
+    if (shouldRewardSide(game, winnerSide)) {
+      awardXp(getSetXpReward(game?.maxRounds), "set_win");
+    }
+
     const nextGame = applySetResult(game, winnerSide);
 
     if (!nextGame) {
@@ -205,6 +362,12 @@ export function GameProvider({ children }) {
   const finalizeGame = (winnerSide) => {
     const game = currentGameRef.current;
     currentSequenceRef.current = { left: 0, right: 0 };
+
+    if (shouldRewardSide(game, winnerSide)) {
+      const setReward = getSetXpReward(game?.maxRounds);
+      awardXp(setReward + XP_MATCH_WIN_BONUS, "match_win");
+    }
+
     const completedGame = applySetResult(game, winnerSide, { isFinal: true });
 
     if (!completedGame) {

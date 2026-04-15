@@ -111,13 +111,13 @@ export default function ChampionPage() {
       <div className="relative min-h-screen flex items-center justify-center tru-overlay-bg px-4 py-5">
         <Link
           href="/"
-          className="fixed top-5 left-4 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300 transition-colors hover:text-white z-10"
+          className="fixed top-5 left-4 rounded-2xl tru-surface backdrop-blur-md border shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-(--text-muted) transition-colors hover:text-foreground z-10"
         >
           Início
         </Link>
         <Link
           href="/history"
-          className="fixed top-5 right-4 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-zinc-300 transition-colors hover:text-white z-10"
+          className="fixed top-5 right-4 rounded-2xl tru-surface backdrop-blur-md border shadow-xl px-4 py-3 text-[10px] font-black uppercase tracking-[0.3em] text-(--text-muted) transition-colors hover:text-foreground z-10"
         >
           Histórico
         </Link>
