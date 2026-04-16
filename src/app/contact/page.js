@@ -13,7 +13,7 @@ export default function ContactPage() {
       intro="Se voce encontrou um problema, quer sugerir uma melhoria ou precisa tratar de anuncios, use este canal de contato."
     >
       <p>
-        E-mail: <span className="font-black text-white">contato@trucoarena.com</span>
+        E-mail: <span className="font-black text-white">libertti@live.com</span>
       </p>
       <p>
         Para assuntos sobre privacidade, anuncios ou correcoes no site, inclua o
